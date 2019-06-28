@@ -34,7 +34,17 @@ namespace Northwind.API.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-				var connectionString = Configuration["connectionStrings:cityInfoDBConnectionString"];
+				var connectionString = Configuration["connectionStrings:northwindwebDbConnectionString"];
+				if (connectionString == null)
+				{
+					System.Collections.IDictionary environmentVariables;
+					environmentVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+					foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
+					{
+						if (env.Key.ToString() == "connectionStrings::northwindwebDbConnectionString")
+							connectionString = (string)env.Value;
+					}
+				}
 				optionsBuilder.UseSqlServer(connectionString);
             }
         }

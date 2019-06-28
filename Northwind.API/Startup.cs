@@ -42,7 +42,17 @@ namespace Northwind.API
 				}
 			});
 
-			var connectionString = Configuration["connectionStrings:NorthwindDBConnectionString"];
+			var connectionString = Configuration["connectionStrings::NorthwindwebDBConnectionString"];
+			if (connectionString == null)
+			{
+				System.Collections.IDictionary environmentVariables;
+				environmentVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+				foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
+				{
+					if (env.Key.ToString() == "connectionStrings::northwindwebDbConnectionString")
+						connectionString = (string)env.Value;
+				}
+			}
 			services.AddDbContext<NorthwindContext>(o => o.UseSqlServer(connectionString));
 
 			services.AddScoped<IEmployeesRepository, EmployeesRepository>();
