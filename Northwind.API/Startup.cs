@@ -18,12 +18,6 @@ namespace Northwind.API
 {
 	public class Startup
 	{
-		private readonly IConfiguration Configuration;
-
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -42,20 +36,17 @@ namespace Northwind.API
 				}
 			});
 
-			var connectionString = Configuration["connectionStrings::NorthwindwebDBConnectionString"];
-			if (connectionString == null)
-			{
-				System.Collections.IDictionary environmentVariables;
-				environmentVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-				foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
-				{
-					if (env.Key.ToString() == "connectionStrings::northwindwebDbConnectionString")
-						connectionString = (string)env.Value;
-				}
-			}
+			string ASPNETCORE_ENVIRONMENT = Environment.GetEnvironmentVariables()["ASPNETCORE_ENVIRONMENT"].ToString();
+			string connectionString;
+
+			if (ASPNETCORE_ENVIRONMENT == "Development")
+				connectionString = Environment.GetEnvironmentVariables()["connectionStrings::northwindwebdbconnectionstring"].ToString();
+			else
+				connectionString = Environment.GetEnvironmentVariables()["SQLAZURECONNSTR_northwindwebdbconnectionstring"].ToString();
 			services.AddDbContext<NorthwindContext>(o => o.UseSqlServer(connectionString));
 
 			services.AddScoped<IEmployeesRepository, EmployeesRepository>();
+			services.AddSwaggerDocument();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,14 +63,17 @@ namespace Northwind.API
 				app.UseExceptionHandler("/Home/Error");
 			}
 
+			app.UseOpenApi();
+			app.UseSwaggerUi3();
+
 			app.UseStatusCodePages();
 			app.UseMvc();
 
-			app.Run(async (context) =>
-			{
-				//await context.Response.WriteAsync("Hello World!");
-				await context.Response.WriteAsync("Welcome to Northwind.API!!!");
-			});
+			//app.Run(async (context) =>
+			//{
+			//	//await context.Response.WriteAsync("Hello World!");
+			//	await context.Response.WriteAsync("Welcome to Northwind.API!!!");
+			//});
 		}
 	}
 }
