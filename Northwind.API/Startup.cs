@@ -67,6 +67,9 @@ namespace Northwind.API
 			app.UseSwaggerUi3();
 
 			app.UseStatusCodePages();
+
+			app.UseCors();
+			app.UseHttpsRedirection();
 			app.UseMvc();
 
 			//app.Run(async (context) =>
