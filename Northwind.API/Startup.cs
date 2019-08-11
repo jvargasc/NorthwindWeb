@@ -51,7 +51,15 @@ namespace Northwind.API
 				connectionString = Environment.GetEnvironmentVariables()["SQLAZURECONNSTR_northwindwebdbconnectionstring"].ToString();
 			services.AddDbContext<NorthwindContext>(o => o.UseSqlServer(connectionString));
 
+			services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+			services.AddScoped<ICustomersRepository, CustomersRepository>();
 			services.AddScoped<IEmployeesRepository, EmployeesRepository>();
+			services.AddScoped<IOrdersRepository, OrdersRepository> ();
+			services.AddScoped<IProductsRepository, ProductsRepository> ();
+			services.AddScoped<IRegionRepository, RegionRepository> ();
+			services.AddScoped<IShippersRepository, ShippersRepository> ();
+			services.AddScoped<ISuppliersRepository, SuppliersRepository> ();
+			services.AddScoped<ITerritoriesRepository,  TerritoriesRepository> ();
 			services.AddSwaggerDocument();
 		}
 
