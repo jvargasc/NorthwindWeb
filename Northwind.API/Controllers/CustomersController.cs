@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.API.Models;
 using Northwind.API.Services;
@@ -18,7 +15,7 @@ namespace Northwind.API.Controllers
 			_customersRepository = customersRepository;
 		}
 
-		[Route("api/getcustomers")]
+		[HttpGet("getcustomers")]
 		public IActionResult GetCustomers()
         {
 			var customersEntities = _customersRepository.GetCustomers();

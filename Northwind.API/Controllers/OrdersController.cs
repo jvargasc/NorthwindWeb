@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.API.Models;
 using Northwind.API.Services;
@@ -18,7 +15,7 @@ namespace Northwind.API.Controllers
 			_ordersRepository = ordersRepository;
 		}
 
-		[Route("getorders")]
+		[HttpGet("getorders")]
 		public IActionResult GetOrders()
         {
 			var ordersEntities = _ordersRepository.GetOrders();
