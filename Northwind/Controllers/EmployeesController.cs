@@ -7,7 +7,7 @@ namespace Northwind.Controllers
 {
 	public class EmployeesController : Controller
     {
-		public IConfiguration Configuration { get; }
+		private readonly IConfiguration Configuration;
 		public EmployeesController(IConfiguration configuration)
 		{
 			Configuration = configuration;

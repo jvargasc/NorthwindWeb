@@ -1,21 +1,21 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Northwind.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Northwind.Models;
-using Newtonsoft.Json;
 using System.Xml.Serialization;
-using System.IO;
 
 namespace Northwind.Services
 {
-	public class ServiceEmployees
+	public class ServiceSuppliers
 	{
-		private IConfiguration _configuration { get; }
+		private readonly IConfiguration _configuration;
 		private HttpClient _httpClient = new HttpClient();
 
-		public ServiceEmployees(IConfiguration configuration)
+		public ServiceSuppliers(IConfiguration configuration)
 		{
 			_configuration = configuration;
 
@@ -32,25 +32,25 @@ namespace Northwind.Services
 			_httpClient.DefaultRequestHeaders.Clear();
 		}
 
-		public async Task<List<Employees>> GetEmployees()
+		public async Task<List<Suppliers>> GetSuppliers()
 		{
-			List<Employees> employees = new List<Employees>();
+			List<Suppliers> suppliers = new List<Suppliers>();
 
-			var response = await _httpClient.GetAsync("api/employees/getemployees");
+			var response = await _httpClient.GetAsync("api/suppliers/getsuppliers");
 			response.EnsureSuccessStatusCode();
 			var content = response.Content.ReadAsStringAsync();
-			
+
 			if (response.Content.Headers.ContentType.MediaType == "application/json")
 			{
-				employees = JsonConvert.DeserializeObject<List<Employees>>(content.Result);
+				suppliers = JsonConvert.DeserializeObject<List<Suppliers>>(content.Result);
 			}
 			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
 			{
-				var serializer = new XmlSerializer(typeof(List<Employees>));
-				employees = (List<Employees>)serializer.Deserialize(new StringReader(content.Result));
+				var serializer = new XmlSerializer(typeof(List<Suppliers>));
+				suppliers = (List<Suppliers>)serializer.Deserialize(new StringReader(content.Result));
 			}
 
-			return employees;
+			return suppliers;
 		}
 
 	}
