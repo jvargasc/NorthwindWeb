@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Northwind.Models
 {
     public partial class Employees
-    {
+	{
         public Employees()
         {
             //EmployeeTerritories = new HashSet<EmployeeTerritories>();
