@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.API.Models;
 using Northwind.API.Services;
@@ -9,29 +11,42 @@ namespace Northwind.API.Controllers
 	public class ShippersController : Controller
     {
 		private readonly IShippersRepository _shippersRepository;
+		private readonly IMapper _mapper;
 
-		public ShippersController(IShippersRepository shippersRepository )
+		public ShippersController(IShippersRepository shippersRepository,
+									IMapper mapper)
 		{
 			_shippersRepository = shippersRepository;
+			_mapper = mapper;
 		}
 
 		[HttpGet("getshippers")]
-        public IActionResult GetShippers()
+        public async Task<ActionResult> GetShippers()
         {
-			var shippersEntities = _shippersRepository.GetShippers();
-			var _results = new List<ShippersDto>();
+			var shippersEntities = await _shippersRepository.GetShippers();
+			var _results = _mapper.Map<IEnumerable<ShippersDto>>(shippersEntities);
+			//var _results = new List<ShippersDto>();
 
-			foreach(var item in shippersEntities)
-			{
-				_results.Add(new ShippersDto
-				{
-					ShipperId = item.ShipperId,
-					CompanyName = item.CompanyName,
-					Phone = item.Phone,
-				});
-			}
+			//foreach(var item in shippersEntities)
+			//{
+			//	_results.Add(new ShippersDto
+			//	{
+			//		ShipperId = item.ShipperId,
+			//		CompanyName = item.CompanyName,
+			//		Phone = item.Phone,
+			//	});
+			//}
 
 			return Ok(_results);
         }
-    }
+
+		[HttpGet("getshipper/{shipperId}")]
+		public async Task<ActionResult> GetShipper(int shipperId)
+		{
+			var shipperEntity = await _shippersRepository.GetShipper(shipperId);
+			var _result = _mapper.Map<Shippers>(shipperEntity);
+
+			return Ok(_result);
+		}
+	}
 }

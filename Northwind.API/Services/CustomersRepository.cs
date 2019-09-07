@@ -1,4 +1,5 @@
 ﻿using Northwind.API.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,17 @@ namespace Northwind.API.Services
 			_context = context;
 		}
 
-		public IEnumerable<Customers> GetCustomers()
+		public async Task<IEnumerable<Customers>> GetCustomers()
 		{
-			return _context.Customers
-					.OrderBy(c => c.CustomerId).ToList();
+			return await _context.Customers
+					.OrderBy(c => c.CustomerId).ToListAsync();
+		}
+
+		public async Task<Customers> GetCustomer(string customerId)
+		{
+			return await _context.Customers
+					.Where(c => c.CustomerId == customerId)
+					.FirstOrDefaultAsync();
 		}
 
 	}

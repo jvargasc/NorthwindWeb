@@ -52,5 +52,26 @@ namespace Northwind.Services
 
 			return products;
 		}
+		
+		public async Task<Products> GetProduct(int productId)
+		{
+			Products product = new Products();
+
+			var response = await _httpClient.GetAsync($"api/products/getproduct/{productId}");
+			response.EnsureSuccessStatusCode();
+			var content = response.Content.ReadAsStringAsync();
+
+			if (response.Content.Headers.ContentType.MediaType == "application/json")
+			{
+				product = JsonConvert.DeserializeObject<Products>(content.Result);
+			}
+			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
+			{
+				var serializer = new XmlSerializer(typeof(Products));
+				product = (Products)serializer.Deserialize(new StringReader(content.Result));
+			}
+
+			return product;
+		}
 	}
 }

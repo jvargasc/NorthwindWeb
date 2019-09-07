@@ -53,5 +53,25 @@ namespace Northwind.Services
 			return region;
 		}
 
+		public async Task<Region> GetRegion(int regionId)
+		{
+			Region region = new Region();
+
+			var response = await _httpClient.GetAsync($"api/Region/getregion/{regionId}");
+			response.EnsureSuccessStatusCode();
+			var content = response.Content.ReadAsStringAsync();
+
+			if (response.Content.Headers.ContentType.MediaType == "application/json")
+			{
+				region = JsonConvert.DeserializeObject<Region>(content.Result);
+			}
+			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
+			{
+				var serializer = new XmlSerializer(typeof(Region));
+				region = (Region)serializer.Deserialize(new StringReader(content.Result));
+			}
+
+			return region;
+		}
 	}
 }

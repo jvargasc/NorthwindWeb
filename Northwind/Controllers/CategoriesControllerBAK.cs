@@ -5,20 +5,19 @@ using Northwind.Services;
 
 namespace Northwind.Controllers
 {
-    public class RegionController : Controller
+	public class CategoriesControllerBAK : Controller
     {
 		private readonly IConfiguration _configuration;
-
-		public RegionController(IConfiguration configuration)
+		public CategoriesControllerBAK(IConfiguration configuration)
 		{
 			_configuration = configuration;
 		}
 
 		public async Task<IActionResult> Index()
 		{
-			var regions = new ServiceRegion(_configuration);
+			var categories = new ServiceCategories(_configuration);
 
-			return View(await regions.GetRegions());
+			return View(await categories.GetCategories());
 		}
 	}
 }

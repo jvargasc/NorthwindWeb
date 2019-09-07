@@ -7,9 +7,9 @@
 
 <h2>Index</h2>
 
-@*<p>
-        <a asp-action="Create">Create New</a>
-    </p>*@
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -20,35 +20,29 @@
                 @Html.DisplayNameFor(model => model.TerritoryDescription)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.RegionId)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Region)
             </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TerritoryId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TerritoryDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RegionId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Region)
-                </td>
-                @*<td>
-                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                    </td>*@
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TerritoryId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TerritoryDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Region.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.TerritoryId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.TerritoryId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.TerritoryId">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>

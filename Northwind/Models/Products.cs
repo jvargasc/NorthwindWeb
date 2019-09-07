@@ -10,7 +10,8 @@ namespace Northwind.Models
             //OrderDetails = new HashSet<OrderDetails>();
         }
 
-        public int ProductId { get; set; }
+		public int Id { get; set; }
+		public int ProductId { get; set; }
         public string ProductName { get; set; }
         public int? SupplierId { get; set; }
         public int? CategoryId { get; set; }

@@ -7,6 +7,7 @@ using Northwind.Models;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.IO;
+using System.Net.Http.Headers;
 
 namespace Northwind.Services
 {
@@ -52,6 +53,25 @@ namespace Northwind.Services
 
 			return categories;
 		}
+		public async Task<Categories> GetCategory(int categoryId)
+		{
+			Categories category = new Categories();
 
+			var response = await _httpClient.GetAsync($"api/categories/getcategory/{categoryId}");
+			response.EnsureSuccessStatusCode();
+			var content = response.Content.ReadAsStringAsync();
+
+			if (response.Content.Headers.ContentType.MediaType == "application/json")
+			{
+				category = JsonConvert.DeserializeObject<Categories>(content.Result);
+			}
+			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
+			{
+				var serializer = new XmlSerializer(typeof(Categories));
+				category = (Categories)serializer.Deserialize(new StringReader(content.Result));
+			}
+
+			return category;
+		}
 	}
 }

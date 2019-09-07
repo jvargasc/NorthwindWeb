@@ -7,9 +7,9 @@
 
 <h2>Index</h2>
 
-@*<p>
-        <a asp-action="Create">Create New</a>
-    </p>*@
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -21,6 +21,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ContactName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContactTitle)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Address)
@@ -43,11 +46,11 @@
             <th>
                 @Html.DisplayNameFor(model => model.Fax)
             </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
+@foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.CustomerId)
@@ -82,12 +85,12 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Fax)
             </td>
-            @*<td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-        </td>*@
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.CustomerId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.CustomerId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.CustomerId">Delete</a>
+            </td>
         </tr>
-        }
+}
     </tbody>
 </table>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Northwind.Models
 {
@@ -12,7 +13,8 @@ namespace Northwind.Models
             //Orders = new HashSet<Orders>();
         }
 
-        public int EmployeeId { get; set; }
+		public int Id { get; set; }
+		public int EmployeeId { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Title { get; set; }
@@ -21,19 +23,20 @@ namespace Northwind.Models
         public DateTime? HireDate { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
-        //public string Region { get; set; }
-        //public string PostalCode { get; set; }
-        //public string Country { get; set; }
-        //public string HomePhone { get; set; }
-        //public string Extension { get; set; }
-        //public byte[] Photo { get; set; }
-        //public string Notes { get; set; }
-        //public int? ReportsTo { get; set; }
-        //public string PhotoPath { get; set; }
+		//public string Region { get; set; }
+		//public string PostalCode { get; set; }
+		//public string Country { get; set; }
+		//public string HomePhone { get; set; }
+		//public string Extension { get; set; }
+		public string Photo64 { get; set; }
+		//public string Notes { get; set; }
+		//public int? ReportsTo { get; set; }
+		//public string PhotoPath { get; set; }
 
-        //public EmployeesDto ReportsToNavigation { get; set; }
-        //public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-        //public ICollection<EmployeesDto> InverseReportsToNavigation { get; set; }
-        //public ICollection<Orders> Orders { get; set; }
-    }
+		//public EmployeesDto ReportsToNavigation { get; set; }
+		//public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
+		//public ICollection<EmployeesDto> InverseReportsToNavigation { get; set; }
+		//public ICollection<Orders> Orders { get; set; }
+
+	}
 }

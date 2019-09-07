@@ -53,5 +53,25 @@ namespace Northwind.Services
 			return employees;
 		}
 
+		public async Task<Employees> GetEmployee(int employeeId)
+		{
+			Employees employee = new Employees();
+
+			var response = await _httpClient.GetAsync($"api/employees/getemployee/{employeeId}");
+			response.EnsureSuccessStatusCode();
+			var content = response.Content.ReadAsStringAsync();
+
+			if (response.Content.Headers.ContentType.MediaType == "application/json")
+			{
+				employee = JsonConvert.DeserializeObject<Employees>(content.Result);
+			}
+			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
+			{
+				var serializer = new XmlSerializer(typeof(Employees));
+				employee = (Employees)serializer.Deserialize(new StringReader(content.Result));
+			}
+
+			return employee;
+		}
 	}
 }

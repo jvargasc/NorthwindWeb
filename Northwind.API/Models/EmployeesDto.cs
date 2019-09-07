@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Northwind.API.Models
 {
-    public partial class EmployeesDto
+	public partial class EmployeesDto
     {
         public EmployeesDto()
         {
@@ -21,19 +20,27 @@ namespace Northwind.API.Models
         public DateTime? HireDate { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
-        //public string Region { get; set; }
-        //public string PostalCode { get; set; }
-        //public string Country { get; set; }
-        //public string HomePhone { get; set; }
-        //public string Extension { get; set; }
-        //public byte[] Photo { get; set; }
-        //public string Notes { get; set; }
-        //public int? ReportsTo { get; set; }
-        //public string PhotoPath { get; set; }
+		//public string Region { get; set; }
+		//public string PostalCode { get; set; }
+		//public string Country { get; set; }
+		//public string HomePhone { get; set; }
+		//public string Extension { get; set; }
+		//public byte[] Photo { set { _photo = value; } }
+		public byte[] Photo { set { _photo = value; } }
+		private byte[] _photo;
+		public string Photo64
+		{
+			get { return Utilities.Base64String(_photo); }
+		}
 
-        //public EmployeesDto ReportsToNavigation { get; set; }
-        //public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-        //public ICollection<EmployeesDto> InverseReportsToNavigation { get; set; }
-        //public ICollection<Orders> Orders { get; set; }
-    }
+		//public string Notes { get; set; }
+		//public int? ReportsTo { get; set; }
+		//public string PhotoPath { get; set; }
+
+		//public EmployeesDto ReportsToNavigation { get; set; }
+		//public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
+		//public ICollection<EmployeesDto> InverseReportsToNavigation { get; set; }
+		//public ICollection<Orders> Orders { get; set; }
+
+	}
 }

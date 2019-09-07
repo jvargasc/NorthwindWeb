@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using Northwind.API.Models;
+using System.Threading.Tasks;
 
 namespace Northwind.API.Services
 {
@@ -13,10 +15,16 @@ namespace Northwind.API.Services
 			_context = context;
 		}
 
-		public IEnumerable<Products> GetProducts()
+		public async Task<IEnumerable<Products>> GetProducts()
 		{
-			return _context.Products
-				.OrderBy(c => c.ProductId).ToList();
+			return await _context.Products
+				.OrderBy(c => c.ProductId).ToListAsync();
+		}
+
+		public async Task<Products> GetProduct(int productId)
+		{
+			return await _context.Products
+				.Where(c => c.ProductId == productId).FirstOrDefaultAsync();
 		}
 	}
 }

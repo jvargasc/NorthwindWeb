@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,6 +50,7 @@ namespace Northwind.API
 				connectionString = Environment.GetEnvironmentVariables()["connectionStrings::northwindwebdbconnectionstring"].ToString();
 			else
 				connectionString = Environment.GetEnvironmentVariables()["SQLAZURECONNSTR_northwindwebdbconnectionstring"].ToString();
+
 			services.AddDbContext<NorthwindContext>(o => o.UseSqlServer(connectionString));
 
 			services.AddScoped<ICategoriesRepository, CategoriesRepository>();
@@ -60,7 +62,10 @@ namespace Northwind.API
 			services.AddScoped<IShippersRepository, ShippersRepository> ();
 			services.AddScoped<ISuppliersRepository, SuppliersRepository> ();
 			services.AddScoped<ITerritoriesRepository,  TerritoriesRepository> ();
+
+			services.AddAutoMapper();
 			services.AddSwaggerDocument();
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,6 +89,7 @@ namespace Northwind.API
 
 			app.UseCors();
 			app.UseHttpsRedirection();
+
 			app.UseMvc();
 
 			//app.Run(async (context) =>
