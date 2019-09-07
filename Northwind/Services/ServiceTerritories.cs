@@ -52,5 +52,26 @@ namespace Northwind.Services
 
 			return territories;
 		}
+
+		public async Task<Territories> GetTerritory(string territoryId)
+		{
+			Territories territories = new Territories();
+
+			var response = await _httpClient.GetAsync($"api/territories/getterritory/{territoryId}");
+			response.EnsureSuccessStatusCode();
+			var content = response.Content.ReadAsStringAsync();
+
+			if (response.Content.Headers.ContentType.MediaType == "application/json")
+			{
+				territories = JsonConvert.DeserializeObject<Territories>(content.Result);
+			}
+			else if (response.Content.Headers.ContentType.MediaType == "application/xml")
+			{
+				var serializer = new XmlSerializer(typeof(Territories));
+				territories = (Territories)serializer.Deserialize(new StringReader(content.Result));
+			}
+
+			return territories;
+		}
 	}
 }

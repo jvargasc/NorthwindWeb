@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.API.Models;
 using Northwind.API.Services;
@@ -9,38 +11,31 @@ namespace Northwind.API.Controllers
 	public class EmployeesController : Controller
     {
 		private IEmployeesRepository _employeesRepository;
+		private readonly IMapper _mapper;
 
-		public EmployeesController(IEmployeesRepository employeesRepository)
+		public EmployeesController(IEmployeesRepository employeesRepository,
+									IMapper mapper)
 		{
 			_employeesRepository = employeesRepository;
+			_mapper = mapper;
 		}
 
 		[HttpGet("getemployees")]
-		public IActionResult GetEmployees()
+		public async Task<ActionResult> GetEmployees()
 		{
-			//var results = _employeesRepository.GetEmployees();
-			var employeesEntities = _employeesRepository.GetEmployees();
-			var _results = new List<EmployeesDto>();
-
-			foreach (var item in employeesEntities)
-			{
-				_results.Add(new EmployeesDto
-				{
-					EmployeeId = item.EmployeeId,
-					FirstName = item.FirstName,
-					LastName = item.LastName,
-					Address = item.Address,
-					BirthDate= item.BirthDate,
-					City = item.City,
-					HireDate = item.HireDate,
-					Title = item.Title,
-					TitleOfCourtesy = item.TitleOfCourtesy
-				});
-			}			
-
-			///var results = Mapper.Map<IEnumerable<CityWithoutPointsOfInterestDto>>(cityEntities);
-
+			var employeesEntities = await _employeesRepository.GetEmployees();
+			var _results = _mapper.Map<IEnumerable<EmployeesDto>>(employeesEntities);
+					
 			return Ok(_results);
+		}
+
+		[HttpGet("getemployee/{employeeId}")]
+		public async Task<ActionResult> GetEmployee(int employeeId)
+		{
+			var employeeEntity = await _employeesRepository.GetEmployee(employeeId);
+			var _result = _mapper.Map<Employees>(employeeEntity);
+
+			return Ok(_result);
 		}
 	}
 }

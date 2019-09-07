@@ -8,6 +8,7 @@ namespace Northwind.API.Services
 {
 	public interface ISuppliersRepository
 	{
-		IEnumerable<Suppliers> GetSuppliers();
+		Task<IEnumerable<Suppliers>> GetSuppliers();
+		Task<Suppliers> GetSupplier(int supplier);
 	}
 }

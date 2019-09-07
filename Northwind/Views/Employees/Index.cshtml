@@ -7,9 +7,9 @@
 
 <h2>Index</h2>
 
-@*<p>
+<p>
     <a asp-action="Create">Create New</a>
-</p>*@
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -39,6 +39,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Photo64)
             </th>
             <th></th>
         </tr>
@@ -73,11 +76,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.City)
             </td>
-            @*<td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>*@
+            <td>
+                <img src="@String.Format("data:image/jpg;base64,{0}", item.Photo64))" />
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.EmployeeId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.EmployeeId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.EmployeeId">Delete</a>
+            </td>
         </tr>
 }
     </tbody>

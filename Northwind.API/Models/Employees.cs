@@ -26,8 +26,14 @@ namespace Northwind.API.Models
         public string Country { get; set; }
         public string HomePhone { get; set; }
         public string Extension { get; set; }
-        public byte[] Photo { get; set; }
-        public string Notes { get; set; }
+		public byte[] Photo { get { return _photo; }
+			                  set { _photo = value; } }
+		private byte[] _photo;
+		public string Photo64
+		{
+			get { return Utilities.Base64String(_photo); }
+		}
+		public string Notes { get; set; }
         public int? ReportsTo { get; set; }
         public string PhotoPath { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Drawing;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.API.Models;
 using Northwind.API.Services;
+using System.Threading.Tasks;
 
 namespace Northwind.API.Controllers
 {
@@ -13,48 +15,31 @@ namespace Northwind.API.Controllers
 	public class CategoriesController : Controller
     {
 		private ICategoriesRepository _categoriesRepository;
+		private readonly IMapper _mapper;
 
-		public CategoriesController(ICategoriesRepository categoriesRepository)
+		public CategoriesController(ICategoriesRepository categoriesRepository,
+									IMapper mapper)
 		{
 			_categoriesRepository = categoriesRepository;
+			_mapper = mapper;
 		}
 
 		[HttpGet("getcategories")]
-		public IActionResult GetCategories()
+		public async Task<ActionResult<IEnumerable<CategoriesDto>>> GetCategories()
 		{
-			//
-			var categoriesEntities = _categoriesRepository.GetCategories();
-			var _results = new List<CategoriesDto>();
-			
-			foreach (var item in categoriesEntities)
-			{
-				_results.Add(new CategoriesDto
-				{
-					CategoryId  = item.CategoryId,
-					CategoryName = item.CategoryName,
-					Description = item.Description,
-					Picture = item.Picture // "data:image/bmp;base64," + Convert.ToBase64String(TransformPicture(item.Picture)) 
-				});
-			}
+			var categoriesEntities = await _categoriesRepository.GetCategories();
+			var _results = _mapper.Map<IEnumerable<CategoriesDto>>(categoriesEntities);
 
-			return Ok(_results);
-        }
+			return Ok(_results);			
+		}
 
-		private byte[] TransformPicture(byte[] Picture)
+		[HttpGet("getcategory/{categoryId}")]
+		public async Task<ActionResult<Categories>> GetCategory(int categoryId)
 		{
+			var categoryEntity = await _categoriesRepository.GetCategory(categoryId);
+			//var _result = _mapper.Map<Categories>(categoryEntity);
 
-			Byte[] image = new Byte[0];
-			image = (byte[])Picture;
-
-			MemoryStream ms = new MemoryStream();
-			ms.Write(image, 78, image.Length - 78);
-
-			// convert stream to string
-			ms.Seek(0, SeekOrigin.Begin);
-			StreamReader reader = new StreamReader(ms);
-			string text = reader.ReadToEnd();
-
-			return System.Text.Encoding.UTF8.GetBytes(text);
+			return Ok(categoryEntity);
 		}
 	}
 }

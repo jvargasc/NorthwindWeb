@@ -9,8 +9,8 @@ namespace Northwind.Models
         {
             //Products = new HashSet<Products>();
         }
-
-        public int SupplierId { get; set; }
+		public int Id { get; set; }
+		public int SupplierId { get; set; }
         public string CompanyName { get; set; }
         public string ContactName { get; set; }
         public string ContactTitle { get; set; }

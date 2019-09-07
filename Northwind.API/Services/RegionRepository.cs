@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,10 +16,16 @@ namespace Northwind.API.Services
 			_context = context;
 		}
 
-		public IEnumerable<Region> GetRegions()
+		public async Task<IEnumerable<Region>> GetRegions()
 		{
-			return _context.Region 
-					.OrderBy(c => c.RegionId).ToList();
+			return await _context.Region 
+					.OrderBy(c => c.RegionId).ToListAsync();
+		}
+
+		public async Task<Region> GetRegion(int regionId)
+		{
+			return await _context.Region
+					.Where (c => c.RegionId == regionId).FirstOrDefaultAsync();
 		}
 	}
 }
