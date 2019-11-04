@@ -1,12 +1,17 @@
-﻿using Northwind.API.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Northwind.API.Entities;
 
 namespace Northwind.API.Services
 {
 	public interface IProductsRepository
 	{
-		Task<IEnumerable<Products>> GetProducts();
+		Task<int> GetCount();
+		Task<IEnumerable<Products>> GetProducts(int page = 0, int itemsPerPage = 0);
 		Task<Products> GetProduct(int productId);
+		void AddProduct(Products productToAdd);
+		Task<bool> SaveChanges();
+		Task<bool> ProductExits(int productId);
+		void DeleteProduct(Products productToDelete);
 	}
 }

@@ -1,42 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel.DataAnnotations;
 
 namespace Northwind.Models
 {
-    public partial class Employees
+	public partial class Employees
 	{
-        public Employees()
-        {
-            //EmployeeTerritories = new HashSet<EmployeeTerritories>();
-            //InverseReportsToNavigation = new HashSet<Employees>();
-            //Orders = new HashSet<Orders>();
-        }
 
-		public int Id { get; set; }
+		[Required]
 		public int EmployeeId { get; set; }
-        public string LastName { get; set; }
-        public string FirstName { get; set; }
-        public string Title { get; set; }
-        public string TitleOfCourtesy { get; set; }
-        public DateTime? BirthDate { get; set; }
-        public DateTime? HireDate { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-		//public string Region { get; set; }
-		//public string PostalCode { get; set; }
-		//public string Country { get; set; }
-		//public string HomePhone { get; set; }
-		//public string Extension { get; set; }
-		public string Photo64 { get; set; }
-		//public string Notes { get; set; }
-		//public int? ReportsTo { get; set; }
-		//public string PhotoPath { get; set; }
-
-		//public EmployeesDto ReportsToNavigation { get; set; }
-		//public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-		//public ICollection<EmployeesDto> InverseReportsToNavigation { get; set; }
-		//public ICollection<Orders> Orders { get; set; }
-
+		[Required, MaxLength(20)]
+		public string LastName { get; set; }
+		[Required, MaxLength(10)]
+		public string FirstName { get; set; }
+		[MaxLength(30)]
+		public string Title { get; set; }
+		[MaxLength(25)]
+		public string TitleOfCourtesy { get; set; }
+		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateTime? BirthDate { get; set; }
+		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateTime? HireDate { get; set; }
+		[MaxLength(60)]
+		public string Address { get; set; }
+		[MaxLength(15)]
+		public string City { get; set; }
+		public int RegionId { get; set; }
+		[MaxLength(10)]
+		public string PostalCode { get; set; }
+		[MaxLength(15)]
+		public string Country { get; set; }
+		[MaxLength(24)]
+		public string HomePhone { get; set; }
+		[MaxLength(4)]
+		public string Extension { get; set; }
+		public byte[] Photo { get; set; }
+		public string Notes { get; set; }
+		public int? ReportsTo { get; set; }
+		[MaxLength(255)]
+		public string PhotoPath { get; set; }
+		
+		public Regions Regions { get; set; }
 	}
 }

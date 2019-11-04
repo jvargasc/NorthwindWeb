@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Northwind.Models;
@@ -11,40 +10,53 @@ using Northwind.Services;
 
 namespace Northwind
 {
-    public class CategoriesController : Controller
-    {
-        private readonly Context _context;
-		private IConfiguration _configuration;
+	public class CategoriesController : Controller
+	{
+		private readonly ServiceCategories _serviceCategories;
+		private readonly IConfiguration _configuration;
+		//private static byte[] TmpPicture;
+		private static List<Utilities.PictureFile> TmpPicture = new List<Utilities.PictureFile>();
 
 		public CategoriesController(IConfiguration configuration)
 		{
 			_configuration = configuration;
+			_serviceCategories = new ServiceCategories(_configuration);
 		}
 
-        // GET: Categories
-        public async Task<IActionResult> Index()
-        {
-			var categories = new ServiceCategories(_configuration);
-			var _results = await categories.GetCategories();
+		// GET: Categories
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
 
-			return View( _results);
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceCategories.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Categories";
+
+			var _results = await _serviceCategories.GetCategories(page, itemsPerPage);
+			
+			return View(_results);
 		}
 
-        // GET: Categories/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Categories/Details/5
+		public async Task<IActionResult> Details(int? categoryId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (categoryId == null)
+				return NotFound();
 
 			var category = new ServiceCategories(_configuration);
-			var _result = await category.GetCategory(id.Value);
+			var _result = await category.GetCategory(categoryId.Value);
 
 			if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
@@ -60,31 +72,36 @@ namespace Northwind
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CategoryId,CategoryName,Description,Picture64")] Categories categories)
-        {
+		//public async Task<IActionResult> Create([Bind("Id,CategoryId,CategoryName,Description,Picture64")] Categories categories)
+		public async Task<IActionResult> Create([FromForm] CategoriesForCreation category, IFormFile imgFile)
+		{
             if (ModelState.IsValid)
             {
-                _context.Add(categories);
-                await _context.SaveChangesAsync();
+				var newImgFile = await Utilities.ConvertPictureToBytes(imgFile);
+				category.Picture = newImgFile;
+				//var newCategory =
+
+				await _serviceCategories.CreateCategory(category);
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(categories);
+            return View(category);
         }
 
         // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? categoryId)
         {
-            if (id == null)
-            {
+            if (categoryId == null)
                 return NotFound();
-            }
 
-            var categories = await _context.Categories.FindAsync(id);
-            if (categories == null)
-            {
+			var category = await _serviceCategories.GetCategory(categoryId.Value);
+			if (category == null)
                 return NotFound();
-            }
-            return View(categories);
+
+			TmpPicture.Add(new Utilities.PictureFile() { Id = category.CategoryId.ToString(),
+								 TmpPicture = category.Picture });
+
+			return View(category);
         }
 
         // POST: Categories/Edit/5
@@ -92,50 +109,58 @@ namespace Northwind
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CategoryId,CategoryName,Description,Picture64")] Categories categories)
-        {
-            if (id != categories.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,CategoryId,CategoryName,Description,Picture64")] Categories categories)
+		public async Task<IActionResult> Edit(int categoryId, [FromForm] CategoriesForUpdate category, IFormFile imgFile)
+		{
+            if (categoryId != category.CategoryId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(categories);
-                    await _context.SaveChangesAsync();
-                }
+					if (imgFile == null)
+					{
+						category.Picture = TmpPicture
+											.Find(r => r.Id == category.CategoryId.ToString() )
+											.TmpPicture;
+					}
+					else
+					{
+						var newImgFile = await Utilities.ConvertPictureToBytes(imgFile);
+						category.Picture = newImgFile;
+					}
+
+					await _serviceCategories.UpdateCategory(category);
+					//TmpPicture = new byte[0];
+					var TmpPic = TmpPicture
+								 .Find(r => r.Id == category.CategoryId.ToString());
+
+					TmpPicture.Remove(TmpPic);
+				}
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoriesExists(categories.Id))
-                    {
+                    if (await CategoryExists(category.CategoryId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categories);
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { categoryId = categoryId });
+			}
+            return View(category);
         }
 
         // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? categoryId)
         {
-            if (id == null)
-            {
+            if (categoryId == null)
                 return NotFound();
-            }
 
-            var categories = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categories == null)
-            {
+			var categories = await _serviceCategories.GetCategory(categoryId.Value);
+
+			if (categories == null)
                 return NotFound();
-            }
 
             return View(categories);
         }
@@ -143,17 +168,16 @@ namespace Northwind
         // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int categoryId)
         {
-            var categories = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(categories);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+			await _serviceCategories.DeleteCategory(categoryId);
+
+			return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoriesExists(int id)
+        private async Task<bool> CategoryExists(int categoryId)
         {
-            return _context.Categories.Any(e => e.Id == id);
-        }
+			return await _serviceCategories.CategoryExists(categoryId);
+		}
     }
 }

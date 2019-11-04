@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Northwind.Models;
@@ -11,40 +8,49 @@ using Northwind.Services;
 
 namespace Northwind.Controllers
 {
-    public class ShippersController : Controller
+	public class ShippersController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceShippers _serviceShippers;
 		private readonly IConfiguration _configuration;
 
 		public ShippersController(IConfiguration configuration)
 		{
             _configuration = configuration;
+			_serviceShippers = new ServiceShippers(_configuration);
 		}
 
-        // GET: Shippers
-        public async Task<IActionResult> Index()
-        {
-			var shippers = new ServiceShippers(_configuration);
-			var _results = await shippers.GetShippers();
+		// GET: Shippers
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceShippers.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Shippers";
+
+			var _results = await _serviceShippers.GetShippers(page, itemsPerPage);
 
 			return View(_results);
-        }
+		}
 
-        // GET: Shippers/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Shippers/Details/5
+		public async Task<IActionResult> Details(int? shipperId)
         {
-            if (id == null)
-            {
+            if (shipperId == null)
                 return NotFound();
-            }
 
-			var shippers = new ServiceShippers(_configuration);
-			var _result = await shippers.GetShipper(id.Value);
+			var _result = await _serviceShippers.GetShipper(shipperId.Value);
 
 			if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
@@ -60,30 +66,27 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ShipperId,CompanyName,Phone")] Shippers shippers)
-        {
+		//public async Task<IActionResult> Create([Bind("Id,ShipperId,CompanyName,Phone")] Shippers shippers)
+		public async Task<IActionResult> Create([FromForm] ShippersForCreation shipper)
+		{
             if (ModelState.IsValid)
             {
-                _context.Add(shippers);
-                await _context.SaveChangesAsync();
+				await _serviceShippers.CreateShipper(shipper);
                 return RedirectToAction(nameof(Index));
             }
-            return View(shippers);
+            return View(shipper);
         }
 
         // GET: Shippers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? shipperId)
         {
-            if (id == null)
-            {
+            if (shipperId == null)
                 return NotFound();
-            }
 
-            var shippers = await _context.Shippers.FindAsync(id);
+            var shippers = await _serviceShippers.GetShipper(shipperId.Value);
             if (shippers == null)
-            {
                 return NotFound();
-            }
+
             return View(shippers);
         }
 
@@ -92,68 +95,56 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ShipperId,CompanyName,Phone")] Shippers shippers)
-        {
-            if (id != shippers.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,ShipperId,CompanyName,Phone")] Shippers shippers)
+		public async Task<IActionResult> Edit(int shipperId, [FromForm] ShippersForUpdate shipper)
+		{
+            if (shipperId != shipper.ShipperId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(shippers);
-                    await _context.SaveChangesAsync();
+                    await _serviceShippers.UpdateShipper(shipper);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ShippersExists(shippers.Id))
-                    {
+                    if (await ShippersExists(shipper.ShipperId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shippers);
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { shipperId = shipperId });
+			}
+            return View(shipper);
         }
 
         // GET: Shippers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? shipperId)
         {
-            if (id == null)
-            {
+            if (shipperId == null)
                 return NotFound();
-            }
 
-            var shippers = await _context.Shippers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (shippers == null)
-            {
+            var shipper = await _serviceShippers.GetShipper(shipperId.Value);
+            if (shipper == null)
                 return NotFound();
-            }
 
-            return View(shippers);
+            return View(shipper);
         }
 
         // POST: Shippers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int shipperId)
         {
-            var shippers = await _context.Shippers.FindAsync(id);
-            _context.Shippers.Remove(shippers);
-            await _context.SaveChangesAsync();
+            await _serviceShippers.DeleteShipper(shipperId);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ShippersExists(int id)
+        private async Task<bool> ShippersExists(int shipperId)
         {
-            return _context.Shippers.Any(e => e.Id == id);
+            return await _serviceShippers.ShipperExists(shipperId);
         }
     }
 }

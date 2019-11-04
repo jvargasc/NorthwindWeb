@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Northwind.API.Models;
+using Northwind.API.Entities;
 using Northwind.API.Services;
 
 namespace Northwind.API.Controllers
@@ -20,37 +20,23 @@ namespace Northwind.API.Controllers
 			_mapper = mapper;
 		}
 
-		[HttpGet("getsuppliers")]
-        public async Task<ActionResult> GetSuppliers()
-        {
-			var suppliersEntities = await _suppliersRepository.GetSuppliers();
-			var _results = _mapper.Map<IEnumerable<SuppliersDto>>(suppliersEntities);
-			//var _results = new List<SuppliersDto>();
+		[HttpGet("getcount")]
+		public async Task<ActionResult<int>> GetCount()
+		{
+			return Ok(await _suppliersRepository.GetCount());
+		}
 
-			//foreach (var item in suppliersEntities)
-			//{
-			//	_results.Add(new SuppliersDto
-			//	{
-			//		SupplierId = item.SupplierId,
-			//		CompanyName = item.CompanyName,
-			//		ContactName = item.ContactName,
-			//		ContactTitle = item.ContactTitle,
-			//		Address = item.Address,
-			//		City = item.City,
-			//		Region = item.Region,
-			//		PostalCode = item.PostalCode,
-			//		Country = item.Country,
-			//		Phone = item.Phone,
-			//		Fax = item.Fax,
-			//		HomePage = item.HomePage
-			//	});
-			//}
+		[HttpGet("getsuppliers")]
+        public async Task<ActionResult<IEnumerable<Models.SuppliersDto>>> GetSuppliers(int page = 0, int itemsPerPage = 0)
+		{
+			var suppliersEntities = await _suppliersRepository.GetSuppliers(page, itemsPerPage);
+			var _results = _mapper.Map<IEnumerable<Models.SuppliersDto>>(suppliersEntities);
 
 			return Ok(_results);
         }
 
 		[HttpGet("getsupplier/{supplierId}")]
-		public async Task<ActionResult> GetSupplier(int supplierId)
+		public async Task<ActionResult<Suppliers>> GetSupplier(int supplierId)
 		{
 			var suppliersEntity = await _suppliersRepository.GetSupplier(supplierId);
 			var _results = _mapper.Map<Suppliers>(suppliersEntity);
@@ -58,5 +44,76 @@ namespace Northwind.API.Controllers
 			return Ok(_results);
 		}
 
+		[HttpGet("supplierexists/{supplierId}")]
+		public async Task<ActionResult<Suppliers>> SupplierExists(int supplierId)
+		{
+			var supplierExists = await _suppliersRepository.SupplierExits(supplierId);
+
+			return Ok(supplierExists);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateSupplier(
+			[FromBody] Models.SuppliersForCreation suppliersToCreate)
+		{
+			if (suppliersToCreate == null)
+				return BadRequest();
+
+			if (!ModelState.IsValid)
+				return new UnprocessableEntityObjectResult(ModelState);
+
+			var supplierEntity = _mapper.Map<Suppliers>(suppliersToCreate);
+			_suppliersRepository.AddSupplier(supplierEntity);
+
+			await _suppliersRepository.SaveChanges();
+
+			await _suppliersRepository.GetSupplier(supplierEntity.SupplierId);
+
+			return Ok( CreatedAtRoute("GetSupplier",
+				new { supplierId = supplierEntity.SupplierId },
+				_mapper.Map<Models.Suppliers>(supplierEntity)));
+		}
+
+		[HttpPut("{supplierId}")]
+		public async Task<IActionResult> UpdateSupplier(int supplierId,
+			[FromBody] Models.SuppliersForUpdate supplierToUpdate)
+		{
+			if (supplierToUpdate == null)
+				return BadRequest();
+
+			if (!ModelState.IsValid)
+				return new UnprocessableEntityObjectResult(ModelState);
+
+			var supplierEntity = await _suppliersRepository.GetSupplier(supplierId);
+			if (supplierEntity == null)
+			{
+				return NotFound();
+			}
+
+			supplierToUpdate.Regions = new Models.Regions()
+			{
+				RegionDescription = supplierEntity.Regions.RegionDescription,
+				RegionId = supplierEntity.Regions.RegionId
+			};
+
+			_mapper.Map(supplierToUpdate, supplierEntity);
+
+			await _suppliersRepository.SaveChanges();
+
+			return Ok(_mapper.Map<Models.Suppliers>(supplierEntity));
+		}
+
+		[HttpDelete("{supplierId}")]
+		public async Task<IActionResult> DeleteSupplier(int supplierId)
+		{
+			var supplierEntity = await _suppliersRepository.GetSupplier(supplierId);
+			if (supplierEntity == null)
+				return NotFound();
+
+			_suppliersRepository.DeleteSupplier(supplierEntity);
+			await _suppliersRepository.SaveChanges();
+
+			return NoContent();
+		}
 	}
 }

@@ -1,0 +1,41 @@
+﻿<nav aria-label="Page navigation">
+    <ul class="pagination">
+
+        @if ((int)ViewData["page"] != 1)
+        {
+            <li>
+                <a aria-label="Previous" asp-area="" asp-controller="@ViewData["ControllerName"]" asp-action="Index" asp-route-page=1 asp-route-pageSize=10>
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        }
+
+        @for (int i = (int)ViewData["PageStart"]; i <= ((int)ViewData["page"] + (int)ViewData["PagingItems"]); i++)
+        {
+            if (i == (int)ViewData["page"])
+            {
+                <li class="active"><a asp-area="" asp-controller="@ViewData["ControllerName"]" asp-action="Index" asp-route-page=@i asp-route-pageSize=10>@i</a></li>
+            }
+            else
+            {
+                <li><a asp-area="" asp-controller="@ViewData["ControllerName"]" asp-action="Index" asp-route-page=@i asp-route-pageSize=10>@i</a></li>
+            }
+
+            if (i == (int)ViewData["PagesCount"])
+            {
+                break;
+            }
+
+        }
+
+        @if ((int)ViewData["page"] != (int)ViewData["PagesCount"])
+        {
+            <li>
+                <a asp-area="" asp-controller="@ViewData["ControllerName"]" asp-action="Index" asp-route-page=@ViewData["PagesCount"] asp-route-pageSize=10>
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        }
+
+    </ul>
+</nav>

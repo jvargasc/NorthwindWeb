@@ -5,10 +5,10 @@ namespace Northwind.API.Models
 {
     public partial class Products
     {
-        public Products()
-        {
-            OrderDetails = new HashSet<OrderDetails>();
-        }
+        //public Products()
+        //{
+        //    OrderDetails = new HashSet<OrderDetails>();
+        //}
 
         public int ProductId { get; set; }
         public string ProductName { get; set; }
@@ -21,8 +21,8 @@ namespace Northwind.API.Models
         public short? ReorderLevel { get; set; }
         public bool Discontinued { get; set; }
 
-        public Categories Category { get; set; }
-        public Suppliers Supplier { get; set; }
-        public ICollection<OrderDetails> OrderDetails { get; set; }
-    }
+		public Categories Categories { get; set; }
+		public Suppliers Suppliers { get; set; }
+		//public ICollection<OrderDetails> OrderDetails { get; set; }
+	}
 }

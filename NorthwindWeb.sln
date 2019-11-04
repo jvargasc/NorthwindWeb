@@ -4,11 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.API", "Northwind.API\Northwind.API.csproj", "{54A4220F-EB78-4BF6-A9CD-23B27F26FFAC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C7E325C9-45E1-4DED-8D05-160ED6968F41} = {C7E325C9-45E1-4DED-8D05-160ED6968F41}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind", "Northwind\Northwind.csproj", "{C7E325C9-45E1-4DED-8D05-160ED6968F41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54A4220F-EB78-4BF6-A9CD-23B27F26FFAC} = {54A4220F-EB78-4BF6-A9CD-23B27F26FFAC}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

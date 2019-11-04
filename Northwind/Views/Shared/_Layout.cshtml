@@ -18,52 +18,22 @@
 
 
     <link rel="stylesheet" href="~/css/menu/styles.css" type="text/css" />
+    <link rel="stylesheet" href="~/css/loadImage.css" type="text/css" />
+    @*<link href="/your-path-to-fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->*@
 
     @*<!-- Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <!-- Custom styles for this template -->
-    <link href="navbar.css" rel="stylesheet">*@
+        <!-- Custom styles for this template -->
+        <link href="navbar.css" rel="stylesheet">*@
 
 </head>
 <body>
 
-    @*<nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Never expand</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample01" aria-controls="navbarsExample01" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarsExample01">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown01">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-md-0">
-                <input class="form-control" type="text" placeholder="Search" aria-label="Search">
-            </form>
-        </div>
-    </nav>*@
-
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-fixed-top navbar-inverse">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -71,45 +41,32 @@
                 </button>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Northwind</a>
             </div>
-            @*<div class="navbar-collapse collapse">
+            <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="active"><a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Home</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                    <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
-                    <li><a asp-area="" asp-controller="Customers" asp-action="Index">Customers</a></li>
-                    <li><a asp-area="" asp-controller="Employees" asp-action="Index">Employees</a></li>
-                    <li><a asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
-                    <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
-                    <li><a asp-area="" asp-controller="Region" asp-action="Index">Region</a></li>
-                    <li><a asp-area="" asp-controller="Shippers" asp-action="Index">Shippers</a></li>
-                    <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
-                    <li><a asp-area="" asp-controller="Territories" asp-action="Index">Territories</a></li>
-                </ul>
-            </div>*@
 
-    @*--------------------------*@
-    <div class="navbar-default">
-            <ul class="nav navbar-nav">
-                <button onclick="menuFunction()" class="dropbtn">Menu</button>
-                <div id="myDropdown" class="dropdown-content">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                    <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
-                    <li><a asp-area="" asp-controller="Customers" asp-action="Index">Customers</a></li>
-                    <li><a asp-area="" asp-controller="Employees" asp-action="Index">Employees</a></li>
-                    <li><a asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
-                    <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
-                    <li><a asp-area="" asp-controller="Regions" asp-action="Index">Regions</a></li>
-                    <li><a asp-area="" asp-controller="Shippers" asp-action="Index">Shippers</a></li>
-                    <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
-                    <li><a asp-area="" asp-controller="Territories" asp-action="Index">Territories</a></li>
-                </div>
-            </ul>
-        </div>
-        </div>
-        </nav>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" 
+                            aria-expanded="false">Menu<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                            <li><a asp-area="" asp-controller="Customers" asp-action="Index">Customers</a></li>
+                            <li><a asp-area="" asp-controller="Employees" asp-action="Index">Employees</a></li>
+                            <li><a asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                            <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
+                            <li><a asp-area="" asp-controller="Regions" asp-action="Index">Regions</a></li>
+                            <li><a asp-area="" asp-controller="Shippers" asp-action="Index">Shippers</a></li>
+                            <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
+                            <li><a asp-area="" asp-controller="Territories" asp-action="Index">Territories</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div><!-- /.nav-collapse -->
+        </div><!-- /.container -->
+    </nav>
 
     <partial name="_CookieConsentPartial" />
 
@@ -117,7 +74,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2019 - Northwind</p>
+            <p>&copy; @Html.Raw(DateTime.Now.Year) - Northwind</p>
         </footer>
     </div>
 
@@ -143,12 +100,14 @@
     </environment>
 
     <script src="~/js/menu/menu.js"></script>
+    <script src="~/js/loadImaje.js"></script>
+    <script src="~/js/handleDropDown.js"></script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    @*<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>*@
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>*@
+    @*<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>*@
 
     @RenderSection("Scripts", required: false)
 </body>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,50 +6,74 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Northwind.Models;
 using Northwind.Services;
+using System.Linq;
+using Newtonsoft.Json;
+using System;
 
 namespace Northwind.Controllers
 {
-    public class CustomersController : Controller
+	public class CustomersController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceCustomers _serviceCustomers;
 		private readonly IConfiguration _configuration;
+		//public IEnumerable<SelectListItem> Regions { get; set; }
+		private IEnumerable<SelectListItem> regionsListItems;
 
 		public CustomersController(IConfiguration configuration)
         {
 			_configuration = configuration;
+			_serviceCustomers = new ServiceCustomers(_configuration);
 		}
 
-        // GET: Customers
-        public async Task<IActionResult> Index()
-        {
-			var customers = new ServiceCustomers(_configuration);
+		// GET: Customers
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+			
+			distributionPerPage.recordCount = await _serviceCustomers.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
 
-			return View(await customers.GetCustomers());
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Customers";
+
+			var _results = await _serviceCustomers.GetCustomers(page, itemsPerPage);
+
+			return View(_results);
 		}
 
 		// GET: Customers/Details/5
 		//public async Task<IActionResult> Details(string? id)
-		public async Task<IActionResult> Details(string id)
+		public async Task<IActionResult> Details(string customerId)
 		{
-			if (string.IsNullOrEmpty(id))
+			if (string.IsNullOrEmpty(customerId))
 			{
                 return NotFound();
             }
 
-            var customers = await new ServiceCustomers(_configuration)
-				.GetCustomer(id);
-            if (customers == null)
+            var customer = await new ServiceCustomers(_configuration)
+				.GetCustomer(customerId);
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(customers);
+			return View(customer);
         }
 
         // GET: Customers/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+			return View();
         }
 
         // POST: Customers/Create
@@ -59,31 +81,38 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customers customers)
+		//public async Task<IActionResult> Create([Bind("Id,CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] CustomersForCreation customer)
+		public async Task<IActionResult> Create( [FromForm] CustomersForCreation customer)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customers);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+				await _serviceCustomers.CreateCustomer(customer);
+
+				return RedirectToAction(nameof(Index));
             }
-            return View(customers);
+            return View(customer);
         }
 
         // GET: Customers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string customerId)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(customerId))
             {
                 return NotFound();
             }
 
-            var customers = await _context.Customers.FindAsync(id.Value);
-            if (customers == null)
+            var customer = await _serviceCustomers.GetCustomer(customerId);
+            if (customer == null)
             {
                 return NotFound();
             }
-            return View(customers);
+			
+			//Region = customer.Region;
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+
+			return View(customer);
         }
 
         // POST: Customers/Edit/5
@@ -91,68 +120,61 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customers customers)
-        {
-            if (id != customers.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax")] Customers customers)
+		public async Task<IActionResult> Edit(string customerId, 
+			[FromForm] CustomersForUpdate customer)
+		{
+			if (customerId != customer.CustomerId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(customers);
-                    await _context.SaveChangesAsync();
+					await _serviceCustomers.UpdateCustomer(customer);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomersExists(customers.Id))
-                    {
+                    if (await CustomersExists(customer.CustomerId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(customers);
+				//return View(customer);
+				return RedirectToAction("Detail", new { customerId = customerId });
+			}
+            return View(customer);
         }
 
         // GET: Customers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string customerId)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(customerId))
             {
                 return NotFound();
             }
 
-            var customers = await _context.Customers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customers == null)
-            {
+            var customer = await _serviceCustomers.GetCustomer(customerId);
+            if (customer == null)
                 return NotFound();
-            }
 
-            return View(customers);
+            return View(customer);
         }
 
         // POST: Customers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string customerId)
         {
-            var customers = await _context.Customers.FindAsync(id);
-            _context.Customers.Remove(customers);
-            await _context.SaveChangesAsync();
+			await _serviceCustomers.DeleteCustomer(customerId);
+         
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomersExists(int id)
+        private async Task<bool> CustomersExists(string customerId)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return await _serviceCustomers.CustomerExists(customerId);
         }
-    }
+
+	}
 }

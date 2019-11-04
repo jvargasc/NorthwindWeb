@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Northwind.Models;
@@ -11,40 +8,49 @@ using Northwind.Services;
 
 namespace Northwind.Controllers
 {
-    public class RegionsController : Controller
+	public class RegionsController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceRegion _serviceRegion;
 		private readonly IConfiguration _configuration;
 
 		public RegionsController(IConfiguration configuration)
 		{
             _configuration = configuration;
+			_serviceRegion = new ServiceRegion(_configuration);
 		}
 
-        // GET: Regions
-        public async Task<IActionResult> Index()
-        {
-			var Regions = new ServiceRegion(_configuration);
-			var _results = await Regions.GetRegions();
+		// GET: Regions
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceRegion.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Regions";
+
+			var _results = await _serviceRegion.GetRegions(page, itemsPerPage);
 
 			return View(_results);
 		}
 
-        // GET: Regions/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Regions/Details/5
+		public async Task<IActionResult> Details(int? regionId)
         {
-            if (id == null)
-            {
+            if (regionId == null)
                 return NotFound();
-            }
 
-			var Regions = new ServiceRegion(_configuration);
-			var _result = await Regions.GetRegion(id.Value);
+			var _result = await _serviceRegion.GetRegion(regionId.Value);
 
             if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
@@ -60,31 +66,29 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RegionId,RegionDescription")] Region region)
-        {
+		//public async Task<IActionResult> Create([Bind("Id,RegionId,RegionDescription")] Region region)
+		public async Task<IActionResult> Create([FromForm] RegionForCreation region)
+		{
             if (ModelState.IsValid)
             {
-                _context.Add(region);
-                await _context.SaveChangesAsync();
+				await _serviceRegion.CreateRegion(region);
+				
                 return RedirectToAction(nameof(Index));
             }
             return View(region);
         }
 
         // GET: Regions/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? regionId)
         {
-            if (id == null)
-            {
+            if (regionId == null)
                 return NotFound();
-            }
 
-            var region = await _context.Region.FindAsync(id);
+            var region = await _serviceRegion.GetRegion(regionId.Value);
             if (region == null)
-            {
                 return NotFound();
-            }
-            return View(region);
+
+			return View(region);
         }
 
         // POST: Regions/Edit/5
@@ -92,50 +96,40 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RegionId,RegionDescription")] Region region)
-        {
-            if (id != region.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,RegionId,RegionDescription")] Region region)
+		public async Task<IActionResult> Edit(int regionId, [FromForm] RegionForUpdate region)
+		{
+            if (regionId != region.RegionId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(region);
-                    await _context.SaveChangesAsync();
+				  	await _serviceRegion.UpdateRegion(region);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RegionExists(region.Id))
-                    {
+                    if (await RegionExists(region.RegionId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { regionId = regionId });
+			}
             return View(region);
         }
 
         // GET: Regions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? regionId)
         {
-            if (id == null)
-            {
+            if (regionId == null)
                 return NotFound();
-            }
 
-            var region = await _context.Region
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var region = await _serviceRegion.GetRegion(regionId.Value);
             if (region == null)
-            {
                 return NotFound();
-            }
 
             return View(region);
         }
@@ -143,17 +137,15 @@ namespace Northwind.Controllers
         // POST: Regions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int regionId)
         {
-            var region = await _context.Region.FindAsync(id);
-            _context.Region.Remove(region);
-            await _context.SaveChangesAsync();
+            await _serviceRegion.DeleteRegion(regionId);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool RegionExists(int id)
+        private async Task<bool> RegionExists(int regionId)
         {
-            return _context.Region.Any(e => e.Id == id);
+            return await _serviceRegion.RegionExists(regionId);
         }
     }
 }

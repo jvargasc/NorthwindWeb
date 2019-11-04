@@ -1,12 +1,17 @@
-﻿using Northwind.API.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Northwind.API.Entities;
 
 namespace Northwind.API.Services
 {
 	public interface IEmployeesRepository
 	{
-		Task<IEnumerable<Employees>> GetEmployees();
-		Task<Employees> GetEmployee(int Employee);
+		Task<int> GetCount();
+		Task<IEnumerable<Employees>> GetEmployees(int page = 0, int itemsPerPage = 0);
+		Task<Employees> GetEmployee(int employee);
+		void AddEmployee(Employees employeeToAdd);
+		Task<bool> SaveChanges();
+		Task<bool> EmployeeExits(int employeeId);
+		void DeleteEmployee(Employees employeeToDelete);
 	}
 }

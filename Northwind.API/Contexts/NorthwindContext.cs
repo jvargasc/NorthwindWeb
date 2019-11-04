@@ -2,8 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
+using Northwind.API.Entities;
 
-namespace Northwind.API.Models
+namespace Northwind.API.Contexts
 {
     public partial class NorthwindContext : DbContext
     {
@@ -25,7 +26,7 @@ namespace Northwind.API.Models
         public virtual DbSet<OrderDetails> OrderDetails { get; set; }
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<Products> Products { get; set; }
-        public virtual DbSet<Region> Region { get; set; }
+        public virtual DbSet<Regions> Regions { get; set; }
         public virtual DbSet<Shippers> Shippers { get; set; }
         public virtual DbSet<Suppliers> Suppliers { get; set; }
         public virtual DbSet<Territories> Territories { get; set; }
@@ -82,17 +83,17 @@ namespace Northwind.API.Models
                     .HasColumnName("CustomerTypeID")
                     .HasMaxLength(10);
 
-                entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.CustomerCustomerDemo)
-                    .HasForeignKey(d => d.CustomerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CustomerCustomerDemo_Customers");
+                //entity.HasOne(d => d.Customer)
+                //    .WithMany(p => p.CustomerCustomerDemo)
+                //    .HasForeignKey(d => d.CustomerId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_CustomerCustomerDemo_Customers");
 
-                entity.HasOne(d => d.CustomerType)
-                    .WithMany(p => p.CustomerCustomerDemo)
-                    .HasForeignKey(d => d.CustomerTypeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CustomerCustomerDemo");
+                //entity.HasOne(d => d.CustomerType)
+                //    .WithMany(p => p.CustomerCustomerDemo)
+                //    .HasForeignKey(d => d.CustomerTypeId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_CustomerCustomerDemo");
             });
 
             modelBuilder.Entity<CustomerDemographics>(entity =>
@@ -121,8 +122,8 @@ namespace Northwind.API.Models
                 entity.HasIndex(e => e.PostalCode)
                     .HasName("PostalCode");
 
-                entity.HasIndex(e => e.Region)
-                    .HasName("Region");
+                entity.HasIndex(e => e.RegionId)
+                    .HasName("RegionId");
 
                 entity.Property(e => e.CustomerId)
                     .HasColumnName("CustomerID")
@@ -149,7 +150,6 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.PostalCode).HasMaxLength(10);
 
-                entity.Property(e => e.Region).HasMaxLength(15);
             });
 
             modelBuilder.Entity<Employees>(entity =>
@@ -194,16 +194,14 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.PostalCode).HasMaxLength(10);
 
-                entity.Property(e => e.Region).HasMaxLength(15);
-
                 entity.Property(e => e.Title).HasMaxLength(30);
 
                 entity.Property(e => e.TitleOfCourtesy).HasMaxLength(25);
 
-                entity.HasOne(d => d.ReportsToNavigation)
-                    .WithMany(p => p.InverseReportsToNavigation)
-                    .HasForeignKey(d => d.ReportsTo)
-                    .HasConstraintName("FK_Employees_Employees");
+                //entity.HasOne(d => d.ReportsToNavigation)
+                //    .WithMany(p => p.InverseReportsToNavigation)
+                //    .HasForeignKey(d => d.ReportsTo)
+                //    .HasConstraintName("FK_Employees_Employees");
             });
 
             modelBuilder.Entity<EmployeeTerritories>(entity =>
@@ -217,17 +215,17 @@ namespace Northwind.API.Models
                     .HasColumnName("TerritoryID")
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.Employee)
-                    .WithMany(p => p.EmployeeTerritories)
-                    .HasForeignKey(d => d.EmployeeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_EmployeeTerritories_Employees");
+                //entity.HasOne(d => d.Employee)
+                //    .WithMany(p => p.EmployeeTerritories)
+                //    .HasForeignKey(d => d.EmployeeId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_EmployeeTerritories_Employees");
 
-                entity.HasOne(d => d.Territory)
-                    .WithMany(p => p.EmployeeTerritories)
-                    .HasForeignKey(d => d.TerritoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_EmployeeTerritories_Territories");
+                //entity.HasOne(d => d.Territory)
+                //    .WithMany(p => p.EmployeeTerritories)
+                //    .HasForeignKey(d => d.TerritoryId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_EmployeeTerritories_Territories");
             });
 
             modelBuilder.Entity<OrderDetails>(entity =>
@@ -250,24 +248,25 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.UnitPrice).HasColumnType("money");
 
-                entity.HasOne(d => d.Order)
-                    .WithMany(p => p.OrderDetails)
-                    .HasForeignKey(d => d.OrderId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Order_Details_Orders");
+                //entity.HasOne(d => d.Order)
+                //    .WithMany(p => p.OrderDetails)
+                //    .HasForeignKey(d => d.OrderId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_Order_Details_Orders");
 
-                entity.HasOne(d => d.Product)
-                    .WithMany(p => p.OrderDetails)
-                    .HasForeignKey(d => d.ProductId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Order_Details_Products");
+                //entity.HasOne(d => d.Product)
+                //    .WithMany(p => p.OrderDetails)
+                //    .HasForeignKey(d => d.ProductId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_Order_Details_Products");
             });
 
             modelBuilder.Entity<Orders>(entity =>
             {
-                entity.HasKey(e => e.OrderId);
+				entity.HasKey(e => e.OrderId);
+				//entity.HasKey(e => new { e.OrderId, e.CustomerId, e.EmployeeId });
 
-                entity.HasIndex(e => e.CustomerId)
+				entity.HasIndex(e => e.CustomerId)
                     .HasName("CustomersOrders");
 
                 entity.HasIndex(e => e.EmployeeId)
@@ -279,7 +278,7 @@ namespace Northwind.API.Models
                 entity.HasIndex(e => e.ShipPostalCode)
                     .HasName("ShipPostalCode");
 
-                entity.HasIndex(e => e.ShipVia)
+                entity.HasIndex(e => e.ShipperId)
                     .HasName("ShippersOrders");
 
                 entity.HasIndex(e => e.ShippedDate)
@@ -311,25 +310,30 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.ShipPostalCode).HasMaxLength(10);
 
-                entity.Property(e => e.ShipRegion).HasMaxLength(15);
+                //entity.Property(e => e.ShipRegion).HasMaxLength(15);
 
                 entity.Property(e => e.ShippedDate).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK_Orders_Customers");
+				//entity.HasOne(d => d.Customer)
+				//    .WithMany(p => p.Orders)
+				//    .HasForeignKey(d => d.CustomerId)
+				//    .HasConstraintName("FK_Orders_Customers");
 
-                entity.HasOne(d => d.Employee)
-                    .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.EmployeeId)
-                    .HasConstraintName("FK_Orders_Employees");
+				//entity.HasOne(d => d.Customer)
+				//    .WithMany(p => p.Orders)
+				//    .HasForeignKey(d => d.CustomerId)
+				//    .HasConstraintName("FK_Orders_Customers");
 
-                entity.HasOne(d => d.ShipViaNavigation)
-                    .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.ShipVia)
-                    .HasConstraintName("FK_Orders_Shippers");
-            });
+				//entity.HasOne(d => d.Employee)
+				//    .WithMany(p => p.Orders)
+				//    .HasForeignKey(d => d.EmployeeId)
+				//    .HasConstraintName("FK_Orders_Employees");
+
+				//entity.HasOne(d => d.Shippers)
+				//	.WithMany(p => p.Orders)
+				//	.HasForeignKey(d => d.ShipVia)
+				//	.HasConstraintName("FK_Orders_Shippers");
+			});
 
             modelBuilder.Entity<Products>(entity =>
             {
@@ -366,18 +370,18 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.UnitsOnOrder).HasDefaultValueSql("((0))");
 
-                entity.HasOne(d => d.Category)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.CategoryId)
-                    .HasConstraintName("FK_Products_Categories");
+				//entity.HasOne(d => d.Category)
+				//	.WithMany(p => p.Products)
+				//	.HasForeignKey(d => d.CategoryId)
+				//	.HasConstraintName("FK_Products_Categories");
 
-                entity.HasOne(d => d.Supplier)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.SupplierId)
-                    .HasConstraintName("FK_Products_Suppliers");
+				//entity.HasOne(d => d.Supplier)
+    //                .WithMany(p => p.Products)
+    //                .HasForeignKey(d => d.SupplierId)
+    //                .HasConstraintName("FK_Products_Suppliers");
             });
 
-            modelBuilder.Entity<Region>(entity =>
+            modelBuilder.Entity<Regions>(entity =>
             {
                 entity.HasKey(e => e.RegionId)
                     .ForSqlServerIsClustered(false);
@@ -438,7 +442,6 @@ namespace Northwind.API.Models
 
                 entity.Property(e => e.PostalCode).HasMaxLength(10);
 
-                entity.Property(e => e.Region).HasMaxLength(15);
             });
 
             modelBuilder.Entity<Territories>(entity =>
@@ -457,11 +460,11 @@ namespace Northwind.API.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.HasOne(d => d.Region)
-                    .WithMany(p => p.Territories)
-                    .HasForeignKey(d => d.RegionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Territories_Region");
+                //entity.HasOne(d => d.Region)
+                //    .WithMany(p => p.Territories)
+                //    .HasForeignKey(d => d.RegionId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_Territories_Region");
             });
         }
     }

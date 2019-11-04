@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Northwind.Models
 {
-    public partial class Territories
+	public partial class Territories
     {
-        public Territories()
-        {
-            //EmployeeTerritories = new HashSet<EmployeeTerritories>();
-        }
-		public int Id { get; set; }
+		[Required, MaxLength(20)]
 		public string TerritoryId { get; set; }
-        public string TerritoryDescription { get; set; }
+		[Required, MaxLength(50)]
+		public string TerritoryDescription { get { return _territoryDescription; }
+											 set { _territoryDescription = value.Trim(); } }
         public int RegionId { get; set; }
+		private string _territoryDescription;
 
-        public Region Region { get; set; }
-        //public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-    }
+		public Regions Regions { get; set; }
+	}
 }

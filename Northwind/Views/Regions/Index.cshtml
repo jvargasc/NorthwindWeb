@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Northwind.Models.Region>
+﻿@model IEnumerable<Northwind.Models.Regions>
 
 @{
     ViewData["Title"] = "Index";
@@ -23,20 +23,26 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RegionId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RegionDescription)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RegionId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RegionId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RegionId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegionId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegionDescription)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-regionId="@item.RegionId">Edit</a> |
+                    <a asp-action="Details" asp-route-regionId="@item.RegionId">Details</a> |
+                    <a asp-action="Delete" asp-route-regionId="@item.RegionId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@if ((int)ViewData["page"] != 0)
+{
+    <partial name="../Shared/Components/_PaginationControl" />
+}

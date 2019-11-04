@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Models;
+using AutoMapper;
 
 namespace Northwind
 {
@@ -33,6 +34,8 @@ namespace Northwind
 
 		    services.AddDbContext<Context>(options =>
 		            options.UseSqlServer(Configuration.GetConnectionString("Context")));
+
+			services.AddAutoMapper();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

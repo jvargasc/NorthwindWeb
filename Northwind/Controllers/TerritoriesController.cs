@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Northwind.Models;
 using Northwind.Services;
 
@@ -13,47 +14,61 @@ namespace Northwind.Controllers
 {
     public class TerritoriesController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceTerritories _serviceTerritories;
 		private readonly IConfiguration _configuration;
+		private IEnumerable<SelectListItem> regionsListItems;
 
 		public TerritoriesController(IConfiguration configuration)
 		{
             _configuration = configuration;
+			_serviceTerritories = new ServiceTerritories(_configuration);
 		}
 
-        // GET: Territories
-        public async Task<IActionResult> Index()
-        {
-			var territories = new ServiceTerritories(_configuration);
-			var _results = await territories.GetTerritories();
+		// GET: Territories
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceTerritories.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Territories";
+
+			var _results = await _serviceTerritories.GetTerritories(page, itemsPerPage);
 
 			return View(_results);
-        }
+		}
 
-        // GET: Territories/Details/5
-        public async Task<IActionResult> Details(string id)
+		// GET: Territories/Details/5
+		public async Task<IActionResult> Details(string territoryId)
         {
-			if (string.IsNullOrEmpty(id))
-			{
+			if (string.IsNullOrEmpty(territoryId))
                 return NotFound();
-            }
 
-			var territories = new ServiceTerritories(_configuration);
-			var _result = await territories.GetTerritory(id);
+			var _result = await _serviceTerritories.GetTerritory(territoryId);
 
 			if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
 
         // GET: Territories/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["RegionId"] = new SelectList(_context.Region, "Id", "Id");
-            return View();
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+
+			return View();
         }
 
         // POST: Territories/Create
@@ -61,33 +76,37 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TerritoryId,TerritoryDescription,RegionId")] Territories territories)
-        {
+		//public async Task<IActionResult> Create([Bind("Id,TerritoryId,TerritoryDescription,RegionId")] Territories territories)
+		public async Task<IActionResult> Create([FromForm] TerritoriesForCreation territory)
+		{
             if (ModelState.IsValid)
             {
-                _context.Add(territories);
-                await _context.SaveChangesAsync();
+				await _serviceTerritories.CreateTerritory(territory);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RegionId"] = new SelectList(_context.Region, "Id", "Id", territories.RegionId);
-            return View(territories);
+
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+
+			return View(territory);
         }
 
         // GET: Territories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string territoryId)
         {
-            if (id == null)
-            {
+            if (string.IsNullOrEmpty(territoryId))
                 return NotFound();
-            }
 
-            var territories = await _context.Territories.FindAsync(id);
+            var territories = await _serviceTerritories.GetTerritory(territoryId);
             if (territories == null)
-            {
                 return NotFound();
-            }
-            ViewData["RegionId"] = new SelectList(_context.Region, "Id", "Id", territories.RegionId);
-            return View(territories);
+
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+
+			return View(territories);
         }
 
         // POST: Territories/Edit/5
@@ -95,70 +114,57 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TerritoryId,TerritoryDescription,RegionId")] Territories territories)
-        {
-            if (id != territories.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,TerritoryId,TerritoryDescription,RegionId")] Territories territories)
+		public async Task<IActionResult> Edit(string territoryId, [FromForm] TerritoriesForUpdate territory)
+		{
+            if (territoryId != territory.TerritoryId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(territories);
-                    await _context.SaveChangesAsync();
+                    await _serviceTerritories.UpdateTerritory(territory);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TerritoriesExists(territories.Id))
-                    {
+                    if ( await TerritoriesExists(territory.TerritoryId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RegionId"] = new SelectList(_context.Region, "Id", "Id", territories.RegionId);
-            return View(territories);
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { territoryId = territoryId });
+			}
+            //ViewData["RegionId"] = new SelectList(_context.Region, "Id", "Id", territories.RegionId);
+            return View(territory);
         }
 
         // GET: Territories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string territoryId)
         {
-            if (id == null)
-            {
+            if (string.IsNullOrEmpty(territoryId))
                 return NotFound();
-            }
 
-            var territories = await _context.Territories
-                .Include(t => t.Region)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (territories == null)
-            {
+            var territory = await _serviceTerritories.GetTerritory(territoryId);
+            if (territory == null)
                 return NotFound();
-            }
 
-            return View(territories);
+            return View(territory);
         }
 
         // POST: Territories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string territoryId)
         {
-            var territories = await _context.Territories.FindAsync(id);
-            _context.Territories.Remove(territories);
-            await _context.SaveChangesAsync();
+            await _serviceTerritories.DeleteTerritory(territoryId);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TerritoriesExists(int id)
+        private async Task<bool> TerritoriesExists(string territoryId)
         {
-            return _context.Territories.Any(e => e.Id == id);
+            return await _serviceTerritories.TerritoryExists(territoryId);
         }
     }
 }

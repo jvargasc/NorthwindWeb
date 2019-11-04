@@ -1,28 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Northwind.Models
 {
-    public partial class Suppliers
+	public partial class Suppliers
     {
-        public Suppliers()
-        {
-            //Products = new HashSet<Products>();
-        }
-		public int Id { get; set; }
+		[Required]
 		public int SupplierId { get; set; }
+		[Required, MaxLength(40)]
         public string CompanyName { get; set; }
-        public string ContactName { get; set; }
-        public string ContactTitle { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string Region { get; set; }
-        public string PostalCode { get; set; }
-        public string Country { get; set; }
-        public string Phone { get; set; }
-        public string Fax { get; set; }
+		[MaxLength(30)]
+		public string ContactName { get; set; }
+		[MaxLength(30)]
+		public string ContactTitle { get; set; }
+		[MaxLength(60)]
+		public string Address { get; set; }
+		[MaxLength(15)]
+		public string City { get; set; }
+		public int RegionId { get; set; }
+		[MaxLength(10)]
+		public string PostalCode { get; set; }
+		[MaxLength(15)]
+		public string Country { get; set; }
+		[MaxLength(24)]
+		public string Phone { get; set; }
+		[MaxLength(24)]
+		public string Fax { get; set; }
         public string HomePage { get; set; }
 
-        //public ICollection<Products> Products { get; set; }
-    }
+		public Regions Regions { get; set; }
+	}
 }

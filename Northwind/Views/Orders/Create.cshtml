@@ -1,97 +1,239 @@
-﻿@model Northwind.Models.Orders
+﻿@model Northwind.Models.OrdersForCreation
 
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="~/css/handleDropDown.css" type="text/css" />
+<link rel="stylesheet" href="~/css/services.css" type="text/css" />
+<link rel="stylesheet" href="~/css/handleOrderDetail.css" type="text/css" />
+
+
 <h2>Create</h2>
 
 <h4>Orders</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="OrderId" class="control-label"></label>
-                <input asp-for="OrderId" class="form-control" />
-                <span asp-validation-for="OrderId" class="text-danger"></span>
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="inputCustomerId">Customer</label>
+                    <div class="form-inline">
+                        <input asp-for="CustomerId" class="form-control" id="inputCustomerId" placeholder="Customer Id" type="hidden">
+                        <input type="text" class="form-control" id="inputCustomerDescription" placeholder="Customer Name" readonly>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                        <button type="button" class="btn btn-info" id="btnCustomer" onclick="showCustomers('@ViewData["Url"]')">
+                            <span class="glyphicon glyphicon-search"></span> Search
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <input asp-for="CustomerId" class="form-control" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="inputEmployeeId">Employee</label>
+                    <div class="form-inline">
+                        <input asp-for="EmployeeId" class="form-control" id="inputEmployeeId" placeholder="Employee Id" type="hidden">
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                        <input type="text" class="form-control" id="inputEmployeeName" placeholder="Employee Name" readonly>
+                        <button type="button" class="btn btn-info" id="btnEmployee" onclick="showEmployees('@ViewData["Url"]')">
+                            <span class="glyphicon glyphicon-search"></span> Search
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label"></label>
-                <select asp-for="EmployeeId" class ="form-control" asp-items="ViewBag.EmployeeId"></select>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="OrderDate">OrderDate</label>
+                    <div class="form-inline">
+                        <input type="date" asp-for="OrderDate" id="OrderDate" class="form-control" />
+                        <span asp-validation-for="OrderDate" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="RequiredDate">RequiredDate</label>
+                    <div class="form-inline">
+                        <input type="date" asp-for="RequiredDate" class="form-control" />
+                        <span asp-validation-for="RequiredDate" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="RequiredDate" class="control-label"></label>
-                <input asp-for="RequiredDate" class="form-control" />
-                <span asp-validation-for="RequiredDate" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShippedDate"></label>
+                    <div class="form-inline">
+                        <input type="date" asp-for="ShippedDate" class="form-control" />
+                        <span asp-validation-for="ShippedDate" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShippedDate" class="control-label"></label>
-                <input asp-for="ShippedDate" class="form-control" />
-                <span asp-validation-for="ShippedDate" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipperId"></label>
+                    <div class="form-inline">
+                        @*<input asp-for="ShipVia" id="ShipVia" type="hidden" class="form-control" />
+                            <select id="Select-ShipVia" onchange="setShipVia(ShipVia)"></select>
+                            <span asp-validation-for="ShipVia" class="text-danger"></span>*@
+                        <select class="form-control" asp-for="ShipperId"
+                                asp-items="@((List<SelectListItem>)ViewData["ShipVia"])"></select>
+                        <span asp-validation-for="ShipperId" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipVia" class="control-label"></label>
-                <input asp-for="ShipVia" class="form-control" />
-                <span asp-validation-for="ShipVia" class="text-danger"></span>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="Freight"></label>
+                    <div class="form-inline">
+                        <input asp-for="Freight" class="form-control" />
+                        <span asp-validation-for="Freight" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Freight" class="control-label"></label>
-                <input asp-for="Freight" class="form-control" />
-                <span asp-validation-for="Freight" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipName"></label>
+                    <div class="form-inline">
+                        <input asp-for="ShipName" class="form-control" />
+                        <span asp-validation-for="ShipName" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipName" class="control-label"></label>
-                <input asp-for="ShipName" class="form-control" />
-                <span asp-validation-for="ShipName" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipAddress"></label>
+                    <div class="form-inline">
+                        <input asp-for="ShipAddress" class="form-control" />
+                        <span asp-validation-for="ShipAddress" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipAddress" class="control-label"></label>
-                <input asp-for="ShipAddress" class="form-control" />
-                <span asp-validation-for="ShipAddress" class="text-danger"></span>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipCity"></label>
+                    <div class="form-inline">
+                        <input asp-for="ShipCity" class="form-control" />
+                        <span asp-validation-for="ShipCity" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipCity" class="control-label"></label>
-                <input asp-for="ShipCity" class="form-control" />
-                <span asp-validation-for="ShipCity" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="RegionId"></label>
+                    <div class="form-inline">
+                        <select class="form-control" asp-for="RegionId"
+                                asp-items="@((List<SelectListItem>)ViewData["Regions"])"></select>
+                        <span asp-validation-for="RegionId" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipRegion" class="control-label"></label>
-                <input asp-for="ShipRegion" class="form-control" />
-                <span asp-validation-for="ShipRegion" class="text-danger"></span>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipPostalCode"></label>
+                    <div class="form-inline">
+                        <input asp-for="ShipPostalCode" class="form-control" />
+                        <span asp-validation-for="ShipPostalCode" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipPostalCode" class="control-label"></label>
-                <input asp-for="ShipPostalCode" class="form-control" />
-                <span asp-validation-for="ShipPostalCode" class="text-danger"></span>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label asp-for="ShipCountry"></label>
+                    <div class="form-inline">
+                        <input asp-for="ShipCountry" class="form-control" />
+                        <span asp-validation-for="ShipCountry" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShipCountry" class="control-label"></label>
-                <input asp-for="ShipCountry" class="form-control" />
-                <span asp-validation-for="ShipCountry" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+
+        </div>
+
     </div>
-</div>
+
+    <partial name="../Shared/Components/_OrderDetail" />
+
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-default" />
+    </div>
+
+</form>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+<div class="container">
+
+    <partial name="../Shared/Components/_ModalCustomer" />
+
+    <partial name="../Shared/Components/_ModalEmployee" />
+
+    <partial name="../Shared/Components/_ModalProduct" />
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#btnCustomer").click(function () {
+            $("#modalCustomer").modal();
+        });
+        $("#btnEmployee").click(function () {
+            $("#modalEmployee").modal();
+        });
+        //$("#btnProduct").click(function () {
+        //    $("#modalProduct").modal();
+        //});
+        @*fillRegionShipViaSelect('@ViewBag.ShipVia');*@
+    });
+
+    document.getElementById('OrderDate').valueAsDate = new Date();
+    document.getElementById('RequiredDate').valueAsDate = new Date();
+    document.getElementById('ShippedDate').valueAsDate = new Date();
+</script>
+
+<script src="~/js/services/customerService.js"></script>
+<script src="~/js/services/employeeService.js"></script>
+<script src="~/js/services/productService.js"></script>
+<script src="~/js/handleOrderDetail.js"></script>
+@*<script type="text/javascript" src="~/js/handleDropDown.js"></script>*@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

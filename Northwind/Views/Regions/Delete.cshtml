@@ -1,4 +1,4 @@
-﻿@model Northwind.Models.Region
+﻿@model Northwind.Models.Regions
 
 @{
     ViewData["Title"] = "Delete";
@@ -27,7 +27,7 @@
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="RegionId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>
