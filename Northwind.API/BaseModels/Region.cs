@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Northwind.API.Models
+namespace Northwind.API.BaseModels
 {
     public partial class Region
     {

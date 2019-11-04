@@ -1,0 +1,11 @@
+﻿#imgCategory, #imgEmployee {
+	max-width: 250px;
+	max-height: 250px;
+}
+
+#imgCategory[type=file], #imgEmployee[type=file] {
+	max-width: 380px;
+	padding: 10px;
+	border-style: solid;
+	border-width: medium;
+}

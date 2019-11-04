@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,50 +10,71 @@ using Northwind.Services;
 
 namespace Northwind.Controllers
 {
-    public class ProductsController : Controller
+	public class ProductsController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceProducts _serviceProducts;
 		private readonly IConfiguration _configuration;
+		private IEnumerable<SelectListItem> suppliersListItems;
+		private IEnumerable<SelectListItem> categoriesListItems;
 
 		public ProductsController(IConfiguration configuration)
 		{
             _configuration = configuration;
+			_serviceProducts = new ServiceProducts(_configuration);
 		}
 
-        // GET: Products
-        public async Task<IActionResult> Index()
-        {
-			var products = new ServiceProducts(_configuration);
-			var _results = await products.GetProducts();
+		// GET: Products
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceProducts.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Products";
+
+			var _results = await _serviceProducts.GetProducts(page, itemsPerPage);
 
 			return View(_results);
-        }
+		}
 
-        // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Products/Details/5
+		public async Task<IActionResult> Details(int? productId)
         {
-            if (id == null)
-            {
+            if (productId == null)
                 return NotFound();
-            }
 
-			var products = new ServiceProducts(_configuration);
-			var _result = await products.GetProduct(id.Value);
+			var _result = await _serviceProducts.GetProduct(productId.Value);
 
 			if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
-            ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id");
-            return View();
+			//ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
+			//ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id");
+
+			ViewData["Url"] = Utilities.GetUrl(_configuration);
+
+			suppliersListItems = await Utilities.FillSuppliersCollection(_configuration);
+			categoriesListItems = await Utilities.FillCategoriesCollection(_configuration);
+
+			ViewData["Suppliers"] = suppliersListItems;
+			ViewData["Categories"] = categoriesListItems;
+
+			return View();
         }
 
         // POST: Products/Create
@@ -62,35 +82,42 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] Products products)
+        public async Task<IActionResult> Create(
+			[FromForm] ProductsForCreation product)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(products);
-                await _context.SaveChangesAsync();
+                await _serviceProducts.CreateProduct(product);
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
-            return View(products);
+            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
+            //ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
+            return View(product);
         }
 
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? productId)
         {
-            if (id == null)
-            {
+            if (productId == null)
                 return NotFound();
-            }
 
-            var products = await _context.Products.FindAsync(id);
-            if (products == null)
-            {
+            var product = await _serviceProducts.GetProduct(productId.Value);
+            if (product == null)
                 return NotFound();
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
-            return View(products);
+
+			//ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
+			//ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
+
+			ViewData["Url"] = Utilities.GetUrl(_configuration);
+
+			suppliersListItems = await Utilities.FillSuppliersCollection(_configuration);
+			categoriesListItems = await Utilities.FillCategoriesCollection(_configuration);
+
+			ViewData["Suppliers"] = suppliersListItems;
+			ViewData["Categories"] = categoriesListItems;
+
+			return View(product);
         }
 
         // POST: Products/Edit/5
@@ -98,72 +125,60 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] Products products)
+        public async Task<IActionResult> Edit(int productId, 
+			[FromForm] ProductsForUpdate product)
         {
-            if (id != products.Id)
-            {
+            if (productId != product.ProductId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(products);
-                    await _context.SaveChangesAsync();
+                    await _serviceProducts.UpdateProduct(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductsExists(products.Id))
-                    {
+                    if (await ProductsExists(product.ProductId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
-            return View(products);
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { productId = productId });
+			}
+			//ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", products.CategoryId);
+			//ViewData["SupplierId"] = new SelectList(_context.Set<Suppliers>(), "Id", "Id", products.SupplierId);
+
+			return View(product);
         }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? productId)
         {
-            if (id == null)
-            {
+            if (productId == null)
                 return NotFound();
-            }
 
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (products == null)
-            {
+            var product = await _serviceProducts.GetProduct(productId.Value);
+            if (product == null)
                 return NotFound();
-            }
 
-            return View(products);
+            return View(product);
         }
 
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int productId)
         {
-            var products = await _context.Products.FindAsync(id);
-            _context.Products.Remove(products);
-            await _context.SaveChangesAsync();
+            await _serviceProducts.DeleteProduct(productId);
+            
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductsExists(int id)
+        private async Task<bool> ProductsExists(int productId)
         {
-            return _context.Products.Any(e => e.Id == id);
+            return await _serviceProducts.ProductExists(productId);
         }
     }
 }

@@ -21,6 +21,22 @@ namespace Northwind.API
 			}
 			return base64Str;
 		}
-		
+
+		internal static void getPageSizes(int recordCount, int itemsPerPage, int page, out int pageToTake, out int pageToSkip)
+		{
+			pageToTake = 0;
+			pageToSkip = 0;
+
+			if (recordCount <= itemsPerPage)
+			{
+				pageToSkip = 0;
+				pageToTake = recordCount;
+			}
+			else
+			{
+				pageToSkip = ((page - 1)* itemsPerPage);
+				pageToTake = itemsPerPage;
+			}		
+		}
 	}
 }

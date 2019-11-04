@@ -30,15 +30,15 @@
                 @Html.DisplayFor(model => model.Description)
             </dd>
             <dt>
-                @Html.DisplayNameFor(model => model.Picture64)
+                @Html.DisplayNameFor(model => model.Picture)
             </dt>
             <dd>
                 @*@Html.DisplayFor(model => model.Picture64)*@
-                <img src="@String.Format("data:image/jpg;base64,{0}", Model.Picture64))" />
+                <img id="imgCategory" src="@String.Format("data:image/jpg;base64,{0}", Utilities.Base64String(Model.Picture)))" />
             </dd>
         </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.CategoryId">Edit</a> |
+    <a asp-action="Edit" asp-route-categoryId="@Model.CategoryId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

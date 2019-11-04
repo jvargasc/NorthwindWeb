@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,48 +10,62 @@ using Northwind.Services;
 
 namespace Northwind.Controllers
 {
-    public class SuppliersController : Controller
+	public class SuppliersController : Controller
     {
-        private readonly Context _context;
+        private readonly ServiceSuppliers _serviceSuppliers;
 		private readonly IConfiguration _configuration;
+		private IEnumerable<SelectListItem> regionsListItems;
 
 		public SuppliersController(IConfiguration configuration)
 		{
             _configuration = configuration;
+			_serviceSuppliers = new ServiceSuppliers(_configuration);
 		}
 
-        // GET: Suppliers
-        public async Task<IActionResult> Index()
-        {
-			var suppliers = new ServiceSuppliers(_configuration);
-			var _results = await suppliers.GetSuppliers();
+		// GET: Suppliers
+		public async Task<IActionResult> Index(int page = 1, int itemsPerPage = 10)
+		{
+
+			DistributionPerPage distributionPerPage = new DistributionPerPage();
+
+			distributionPerPage.recordCount = await _serviceSuppliers.GetCount();
+			distributionPerPage.itemsPerPage = itemsPerPage;
+			distributionPerPage.page = page;
+
+			distributionPerPage.CalculateDistribution();
+
+			ViewData["PagesCount"] = int.Parse(distributionPerPage.pageCount.ToString());
+			ViewData["page"] = distributionPerPage.page;
+			ViewData["PageStart"] = distributionPerPage.PageStart;
+			ViewData["PagingItems"] = distributionPerPage.itemsPerPage;
+			ViewData["ControllerName"] = "Suppliers";
+
+			var _results = await _serviceSuppliers.GetSuppliers(page, itemsPerPage);
 
 			return View(_results);
 		}
 
-        // GET: Suppliers/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Suppliers/Details/5
+		public async Task<IActionResult> Details(int? supplierId)
         {
-            if (id == null)
-            {
+            if (supplierId == null)
                 return NotFound();
-            }
 
-			var suppliers = new ServiceSuppliers(_configuration);
-			var _result = await suppliers.GetSupplier(id.Value);
+			var _result = await _serviceSuppliers.GetSupplier(supplierId.Value);
 
 			if (_result == null)
-            {
                 return NotFound();
-            }
 
             return View(_result);
         }
 
         // GET: Suppliers/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+			return View();
         }
 
         // POST: Suppliers/Create
@@ -60,31 +73,32 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Suppliers suppliers)
-        {
+		//public async Task<IActionResult> Create([Bind("Id,SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Suppliers suppliers)
+		public async Task<IActionResult> Create([FromForm] SuppliersForCreation supplier)
+		{
             if (ModelState.IsValid)
             {
-                _context.Add(suppliers);
-                await _context.SaveChangesAsync();
+				await _serviceSuppliers.CreateSupplier(supplier);
                 return RedirectToAction(nameof(Index));
             }
-            return View(suppliers);
+            return View(supplier);
         }
 
         // GET: Suppliers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? supplierId)
         {
-            if (id == null)
-            {
+            if (supplierId == null)
                 return NotFound();
-            }
 
-            var suppliers = await _context.Suppliers.FindAsync(id);
-            if (suppliers == null)
-            {
+            var supplier = await _serviceSuppliers.GetSupplier(supplierId.Value);
+            if (supplier == null)
                 return NotFound();
-            }
-            return View(suppliers);
+
+			regionsListItems = await Utilities.FillRegionsCollection(_configuration);
+
+			ViewData["Regions"] = regionsListItems;
+
+			return View(supplier);
         }
 
         // POST: Suppliers/Edit/5
@@ -92,68 +106,56 @@ namespace Northwind.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Suppliers suppliers)
-        {
-            if (id != suppliers.Id)
-            {
+		//public async Task<IActionResult> Edit(int id, [Bind("Id,SupplierId,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage")] Suppliers suppliers)
+		public async Task<IActionResult> Edit(int supplierId, [FromForm] SuppliersForUpdate supplier)
+		{
+            if (supplierId != supplier.SupplierId)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(suppliers);
-                    await _context.SaveChangesAsync();
+					await _serviceSuppliers.UpdateSupplier(supplier);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SuppliersExists(suppliers.Id))
-                    {
+                    if ( await SuppliersExists(supplier.SupplierId) == false)
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(suppliers);
+				//return RedirectToAction(nameof(Index));
+				return RedirectToAction("Details", new { supplierId = supplierId });
+			}
+            return View(supplier);
         }
 
         // GET: Suppliers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? supplierId)
         {
-            if (id == null)
-            {
+            if (supplierId == null)
                 return NotFound();
-            }
 
-            var suppliers = await _context.Suppliers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (suppliers == null)
-            {
+            var supplier = await _serviceSuppliers.GetSupplier(supplierId.Value);
+            if (supplier == null)
                 return NotFound();
-            }
 
-            return View(suppliers);
+            return View(supplier);
         }
 
         // POST: Suppliers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int supplierId)
         {
-            var suppliers = await _context.Suppliers.FindAsync(id);
-            _context.Suppliers.Remove(suppliers);
-            await _context.SaveChangesAsync();
+            await _serviceSuppliers.DeleteSupplier(supplierId);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SuppliersExists(int id)
+        private async Task<bool> SuppliersExists(int supplierId)
         {
-            return _context.Suppliers.Any(e => e.Id == id);
+            return await _serviceSuppliers.SupplierExists(supplierId);
         }
     }
 }

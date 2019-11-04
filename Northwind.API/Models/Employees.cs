@@ -5,12 +5,12 @@ namespace Northwind.API.Models
 {
     public partial class Employees
     {
-        public Employees()
-        {
-            EmployeeTerritories = new HashSet<EmployeeTerritories>();
-            InverseReportsToNavigation = new HashSet<Employees>();
-            Orders = new HashSet<Orders>();
-        }
+        //public Employees()
+        //{
+        //    EmployeeTerritories = new HashSet<EmployeeTerritories>();
+        //    InverseReportsToNavigation = new HashSet<Employees>();
+        //    Orders = new HashSet<Orders>();
+        //}
 
         public int EmployeeId { get; set; }
         public string LastName { get; set; }
@@ -21,25 +21,21 @@ namespace Northwind.API.Models
         public DateTime? HireDate { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
-        public string Region { get; set; }
+        public int RegionId { get; set; }
         public string PostalCode { get; set; }
         public string Country { get; set; }
         public string HomePhone { get; set; }
         public string Extension { get; set; }
-		public byte[] Photo { get { return _photo; }
-			                  set { _photo = value; } }
-		private byte[] _photo;
-		public string Photo64
-		{
-			get { return Utilities.Base64String(_photo); }
-		}
+		public byte[] Photo { get; set; }
 		public string Notes { get; set; }
         public int? ReportsTo { get; set; }
         public string PhotoPath { get; set; }
 
-        public Employees ReportsToNavigation { get; set; }
-        public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-        public ICollection<Employees> InverseReportsToNavigation { get; set; }
-        public ICollection<Orders> Orders { get; set; }
-    }
+		public Regions Regions { get; set; }
+
+		//public Employees ReportsToNavigation { get; set; }
+		//public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
+		//public ICollection<Employees> InverseReportsToNavigation { get; set; }
+		//public ICollection<Orders> Orders { get; set; }
+	}
 }

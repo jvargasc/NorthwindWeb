@@ -25,6 +25,18 @@
             @Html.DisplayFor(model => model.ProductName)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.Categories.CategoryName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Categories.CategoryName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Suppliers.CompanyName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Suppliers.CompanyName)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.QuantityPerUnit)
         </dt>
         <dd>
@@ -60,22 +72,10 @@
         <dd>
             @Html.DisplayFor(model => model.Discontinued)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Category.Id)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Supplier)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Supplier.Id)
-        </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ProductId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

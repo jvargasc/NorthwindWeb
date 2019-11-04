@@ -1,0 +1,103 @@
+﻿@model Northwind.Models.Orders
+@{ 
+    int rowCount = 0;
+
+    if(Model != null)
+    {
+        if (Model.OrderDetails.Count > 0)
+        {
+            rowCount = Model.OrderDetails.Count - 1;
+        }
+    }
+}
+
+<fieldset>
+    <input class="form-control col-lg-1" name="rowCounter" id="rowCounter" type="hidden" value=@Html.Raw($"{(@rowCount + 1)}") />
+    <legend>Order Details</legend>
+    <table id="orderDetailTable" class="table table-bordered">
+        <thead>
+            <tr>
+                <td align="center">Quantity</td>
+                <td align="center">Product Name</td>
+                <td align="center">Quantity Per Unit</td>
+                <td align="center">Unit Price</td>
+                <td align="center">Discount</td>
+                <td></td>
+            </tr>
+        </thead>
+
+        @for (int i = 0; i <= rowCount; i++)
+        {
+
+            string inputQuantity = "";
+            string inputProductId = "";
+            string inputProductName = "";
+            string inputQuantityPerUnit = "";
+            string inputUnitPrice = "";
+            string inputDiscount = "";
+
+            if (rowCount > 0)
+            {
+                var orderDetails = Model.OrderDetails.ToList();
+                inputQuantity = orderDetails[i].Quantity.ToString("###,###");
+                inputProductId = orderDetails[i].ProductId.ToString();
+                inputProductName = orderDetails[i].Products.ProductName.ToString();
+                inputQuantityPerUnit = orderDetails[i].Products.QuantityPerUnit.ToString();
+                inputUnitPrice = orderDetails[i].UnitPrice.ToString("###,##0.00");
+                inputDiscount = orderDetails[i].Discount.ToString("###,##0.00");
+            }
+
+            <tr id=@Html.Raw($"tablerow{@i.ToString()}")>
+                <td>
+                    <div class="editor-field">
+                        <input class="form-control" name="inputQuantity[@i]" id=@Html.Raw($"inputQuantity[{@i.ToString()}]") type="text"
+                               required="required"
+                               value="@Html.Raw(inputQuantity)" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input class="form-control" name="inputProductId[@i]" id="inputProductId[@i]" type="hidden"
+                               required="required"
+                               value="@Html.Raw(inputProductId)" />
+                        <input class="form-control col-lg-5" name="inputProductName[@i]" id="inputProductName[@i]" type="text" required="required" readonly
+                               value="@Html.Raw(inputProductName)" />
+                        <button type="button" class="btn btn-info" onclick="loadModalProduct('@ViewData["Url"]', 0)">
+                            <span class="glyphicon glyphicon-search"></span> Search
+                        </button>
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input class="form-control" name="inputQuantityPerUnit[@i]" id="inputQuantityPerUnit[@i]" type="text" 
+                               required="required" readonly 
+                               value="@Html.Raw(inputQuantityPerUnit)" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input class="form-control" name="inputUnitPrice[@i]" id="inputUnitPrice[@i]" type="text" required="required" 
+                               value="@Html.Raw(inputUnitPrice)" />
+                    </div>
+                </td>
+                <td>
+                    <div class="editor-field">
+                        <input class="form-control" name="inputDiscount[@i]" id="inputDiscount[@i]" type="text" required="required" 
+                               value="@Html.Raw(inputDiscount)" />
+                    </div>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" onclick="removeTr(@i);">Delete</button>
+                </td>
+            </tr>
+        }
+
+    </table>
+    <p>
+        <button type="button" class="btn btn-primary"
+                onclick="addTr('@ViewData["Url"]')">
+            Add
+        </button>
+    </p>
+    <hr />
+</fieldset>

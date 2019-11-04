@@ -49,10 +49,10 @@
             @Html.DisplayFor(model => model.City)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Region)
+            @Html.DisplayNameFor(model => model.RegionId)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Region)
+            @Html.DisplayFor(model => model.RegionId)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.PostalCode)
@@ -81,7 +81,7 @@
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CustomerId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Northwind.API.Models;
+using Northwind.API.Contexts;
 using Northwind.API.Services;
 
 namespace Northwind.API
@@ -91,6 +91,11 @@ namespace Northwind.API
 			app.UseHttpsRedirection();
 
 			app.UseMvc();
+
+			app.Run(async (context) =>
+			{
+				context.Response.Redirect("swagger/index.html");
+			});
 
 			//app.Run(async (context) =>
 			//{

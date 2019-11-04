@@ -46,13 +46,13 @@
             @Html.DisplayNameFor(model => model.BirthDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.BirthDate)
+            @Html.DisplayFor(model => model.BirthDate, "{0:dd/MM/yyyy}")
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.HireDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.HireDate)
+            @Html.DisplayFor(model => model.HireDate, "{0:dd/MM/yyyy}")
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Address)
@@ -67,15 +67,16 @@
             @Html.DisplayFor(model => model.City)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Photo64)
+            @Html.DisplayNameFor(model => model.Photo)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Photo64)
+            @*@Html.DisplayFor(model => Utilities.Base64String(model.Photo))*@
+            <img id="imgCategory" src="@String.Format("data:image/jpg;base64,{0}", Utilities.Base64String(Model.Photo)))" />
         </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="EmployeeId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

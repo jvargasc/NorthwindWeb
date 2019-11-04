@@ -25,15 +25,15 @@
             @Html.DisplayFor(model => model.TerritoryDescription)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Region)
+            @Html.DisplayNameFor(model => model.RegionId)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Region.Id)
+            @Html.DisplayFor(model => model.RegionId)
         </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="TerritoryId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

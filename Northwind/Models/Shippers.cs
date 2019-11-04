@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Northwind.Models
 {
-    public partial class Shippers
+	public partial class Shippers
     {
-        public Shippers()
-        {
-            //Orders = new HashSet<Orders>();
-        }
-		public int Id { get; set; }
+		[Required]
 		public int ShipperId { get; set; }
-        public string CompanyName { get; set; }
-        public string Phone { get; set; }
+		[Required, MaxLength(40)]
+		public string CompanyName { get; set; }
+		[MaxLength(24)]
+		public string Phone { get; set; }
 
-        //public ICollection<Orders> Orders { get; set; }
     }
 }

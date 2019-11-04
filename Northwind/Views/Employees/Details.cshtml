@@ -66,14 +66,20 @@
             @Html.DisplayFor(model => model.City)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Photo64)
+            @Html.DisplayNameFor(model => model.Regions.RegionDescription)
         </dt>
         <dd>
-            <img src="@String.Format("data:image/jpg;base64,{0}", Model.Photo64))" />
+            @Html.DisplayFor(model => model.Regions.RegionDescription)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Photo)
+        </dt>
+        <dd>
+            <img src="@String.Format("data:image/jpg;base64,{0}", Utilities.Base64String(Model.Photo)))" />
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-employeeId="@Model.EmployeeId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

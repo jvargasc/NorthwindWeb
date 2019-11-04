@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    float totalValue = @Model.OrderDetails.Sum(s => (s.Quantity * (float.Parse(s.UnitPrice.ToString()) - s.Discount)));
 }
 
 <h2>Details</h2>
@@ -18,10 +19,18 @@
             @Html.DisplayFor(model => model.OrderId)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.CustomerId)
+            @*@Html.DisplayNameFor(model => model.EmployeeId)*@
+            Employee Name
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.CustomerId)
+            @Html.DisplayFor(model => model.Employees.FirstName)
+        </dd>
+        <dt>
+            @*@Html.DisplayNameFor(model => model.Customers.ContactName)*@
+            Customer Name
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Customers.ContactName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.OrderDate)
@@ -42,10 +51,10 @@
             @Html.DisplayFor(model => model.ShippedDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ShipVia)
+            @Html.DisplayNameFor(model => model.ShipperId)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ShipVia)
+            @Html.DisplayFor(model => model.Shippers.CompanyName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Freight)
@@ -72,10 +81,11 @@
             @Html.DisplayFor(model => model.ShipCity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ShipRegion)
+            @*@Html.DisplayNameFor(model => model.ShipRegion)*@
+            Region
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ShipRegion)
+            @Html.DisplayFor(model => model.Regions.RegionDescription)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.ShipPostalCode)
@@ -90,14 +100,43 @@
             @Html.DisplayFor(model => model.ShipCountry)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Employee)
+            @Html.DisplayNameFor(model => model.OrderDetails)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Employee.Id)
-        </dd>
+
+            <table id="orderDetailTable" class="table table-bordered ">
+                <thead>
+                    <tr>
+                        <td align="center">Quantity</td>
+                        <td align="center">Product Name</td>
+                        <td align="center">Quantity Per Unit</td>
+                        <td align="center">Unit Price</td>
+                        <td align="center">Discount</td>
+                        <td align="center">Total</td>
+                    </tr>
+                </thead>
+                @foreach (OrderDetails item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td align="center">@Html.Raw(@item.Quantity.ToString("###,###"))</td>
+                        <td>@item.Products.ProductName</td>
+                        <td>@item.Products.QuantityPerUnit</td>
+                        <td align="right">@Html.Raw(@item.UnitPrice.ToString("###,###.00"))</td>
+                        <td align="right">@Html.Raw(@item.Discount.ToString("###,##0.00"))</td>
+                        <td align="right">
+                            @Html.Raw((@item.Quantity * (float.Parse(@item.UnitPrice.ToString()) - @item.Discount)).ToString("###,##0.00"))
+                        </td>
+                    </tr>
+
+                }
+            </table>
+
+            @Html.Raw(@totalValue.ToString("###,##0.00"))
+
+        </dd>        
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.CustomerId">Edit</a> |
+    <a asp-action="Edit" asp-route-orderId="@Model.OrderId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

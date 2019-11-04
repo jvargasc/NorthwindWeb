@@ -1,33 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Northwind.Models
 {
     public partial class Orders
     {
-        public Orders()
-        {
-            //OrderDetails = new HashSet<OrderDetails>();
-        }
-		public int Id { get; set; }
-		public int OrderId { get; set; }
-        public string CustomerId { get; set; }
-        public int? EmployeeId { get; set; }
-        public DateTime? OrderDate { get; set; }
-        public DateTime? RequiredDate { get; set; }
-        public DateTime? ShippedDate { get; set; }
-        public int? ShipVia { get; set; }
-        public decimal? Freight { get; set; }
-        public string ShipName { get; set; }
-        public string ShipAddress { get; set; }
-        public string ShipCity { get; set; }
-        public string ShipRegion { get; set; }
-        public string ShipPostalCode { get; set; }
-        public string ShipCountry { get; set; }
+		//public Orders()
+		//{
+		//	Customer = new CustomersInfo();
+		//	Employee = new EmployeesInfo();
+		//}
 
-        public Customers Customer { get; set; }
-        public Employees Employee { get; set; }
-        public Shippers ShipViaNavigation { get; set; }
-        //public ICollection<OrderDetails> OrderDetails { get; set; }
-    }
+		[Required]
+		public int OrderId { get; set; }
+		[MaxLength(5)]
+		public string CustomerId { get; set; }
+        public int? EmployeeId { get; set; }
+		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateTime? OrderDate { get; set; }
+		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateTime? RequiredDate { get; set; }
+		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+		public DateTime? ShippedDate { get; set; }
+        public int? ShipperId { get; set; }
+        public decimal? Freight { get; set; }
+		[MaxLength(40)]
+		public string ShipName { get; set; }
+		[MaxLength(60)]
+		public string ShipAddress { get; set; }
+		[MaxLength(15)]
+		public string ShipCity { get; set; }
+		public int RegionId { get; set; }
+		[MaxLength(10)]
+		public string ShipPostalCode { get; set; }
+		[MaxLength(15)]
+		public string ShipCountry { get; set; }
+
+		public CustomersInfo Customers { get; set; }
+		public EmployeesInfo Employees { get; set; }
+		public Regions Regions { get; set; }
+		public Shippers Shippers { get; set; }
+		public ICollection<OrderDetails> OrderDetails { get; set; }
+	}
 }

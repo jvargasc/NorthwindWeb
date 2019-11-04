@@ -19,10 +19,18 @@
             @Html.DisplayFor(model => model.OrderId)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.CustomerId)
+            @Html.DisplayNameFor(model => model.Customers.CompanyName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.CustomerId)
+            @Html.DisplayFor(model => model.Customers.CompanyName)
+        </dd>
+        <dt>
+            @*@Html.DisplayNameFor(model => model.Employees.FirstName)*@             
+            Employee
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Employees.FirstName)
+            @Html.DisplayFor(model => model.Employees.LastName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.OrderDate)
@@ -43,10 +51,11 @@
             @Html.DisplayFor(model => model.ShippedDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ShipVia)
+            @*@Html.DisplayNameFor(model => model.Shippers.CompanyName)*@
+            Shipper
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ShipVia)
+            @Html.DisplayFor(model => model.Shippers.CompanyName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Freight)
@@ -73,10 +82,11 @@
             @Html.DisplayFor(model => model.ShipCity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ShipRegion)
+            @*@Html.DisplayNameFor(model => model.ShipRegion)*@
+            Region
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ShipRegion)
+            @Html.DisplayFor(model => model.Regions.RegionDescription)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.ShipPostalCode)
@@ -90,16 +100,10 @@
         <dd>
             @Html.DisplayFor(model => model.ShipCountry)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Employee)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Employee.Id)
-        </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="OrderId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

@@ -5,19 +5,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/handleDropDown.css" type="text/css" />
+
 <h2>Create</h2>
 
 <h4>Employees</h4>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label"></label>
-                <input asp-for="EmployeeId" class="form-control" />
-                <span asp-validation-for="EmployeeId" class="text-danger"></span>
-            </div>
             <div class="form-group">
                 <label asp-for="LastName" class="control-label"></label>
                 <input asp-for="LastName" class="form-control" />
@@ -59,9 +57,21 @@
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Photo64" class="control-label"></label>
-                <input asp-for="Photo64" class="form-control" />
-                <span asp-validation-for="Photo64" class="text-danger"></span>
+                <label asp-for="RegionId" class="control-label"></label>
+                <select class="form-control" asp-for="RegionId"
+                        asp-items="@((List<SelectListItem>)ViewData["Regions"])"></select>
+                <span asp-validation-for="RegionId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Photo" class="control-label"></label>
+                <div class="img-thumbnail">
+                    <img id="imgEmployee" src="~/images/Blank.png" alt="Employee Image" class="rounded float-right" />
+                    <br />
+                    <br />
+                    <input type="file" name="imgFile" onchange="readURL(this);" />
+                    @*<input asp-for="Photo" class="form-control" />
+                        <span asp-validation-for="Photo" class="text-danger"></span>*@
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
@@ -73,6 +83,15 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@*<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        fillRegionSelect('@ViewBag.Regions');
+    });
+</script>
+
+<script type="text/javascript" src="~/js/handleDropDown.js"></script>*@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
